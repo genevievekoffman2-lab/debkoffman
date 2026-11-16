@@ -1,0 +1,271 @@
+---
+// BaseLayout.astro
+// The shared shell for every page: <head>, the top bar, and a <main> area.
+// Each page passes its own content in, and it appears where <slot /> is.
+
+interface Props {
+	title?: string; // text for the browser tab
+}
+
+const { title } = Astro.props;
+const pageTitle = title ? `${title} · Deb Koffman Art` : 'Deb Koffman Art';
+
+// The links in the top bar. Add or reorder pages here.
+const navLinks = [
+	{ href: '/', label: 'Home' },
+	{ href: '/about', label: 'About Deb' },
+	{ href: '/art', label: 'Her Art' },
+	{ href: '/shop', label: 'Shop' },
+];
+
+// Split the links around the bird: first half on the left, the rest on the right.
+const half = Math.ceil(navLinks.length / 2);
+const leftLinks = navLinks.slice(0, half);
+const rightLinks = navLinks.slice(half);
+
+// Work out which link is the current page.
+// Strip a trailing slash so "/about/" and "/about" match the same link.
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isCurrent = (href: string) =>
+	href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<title>{pageTitle}</title>
+	</head>
+	<body>
+		<!-- Top bar: drawn like one of Deb's panels. Sky behind, grass along the bottom, bird in the middle. -->
+		<header class="top-bar">
+			<nav aria-label="Main">
+				<ul class="nav-left">
+					{
+						leftLinks.map((link) => (
+							<li>
+								<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+									{link.label}
+								</a>
+							</li>
+						))
+					}
+				</ul>
+
+				<a class="bird-link" href="/">
+					<img
+						src="/images/header/header-bird.png"
+						alt="Deb Koffman Art, home"
+						width="748"
+						height="706"
+					/>
+				</a>
+
+				<ul class="nav-right">
+					{
+						rightLinks.map((link) => (
+							<li>
+								<a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>
+									{link.label}
+								</a>
+							</li>
+						))
+					}
+				</ul>
+			</nav>
+		</header>
+
+		<main>
+			<slot />
+		</main>
+	</body>
+</html>
+
+<style is:global>
+	/* Global basics: apply to every page that uses this layout. */
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+	body {
+		margin: 0;
+		font-family: system-ui, sans-serif;
+		line-height: 1.5;
+		color: #222;
+		background: #fffdf8;
+	}
+
+	/* Dashed boxes that mark where content will go. Shared by all pages. Remove later. */
+	.placeholder {
+		border: 2px dashed #c9c2b2;
+		border-radius: 8px;
+		padding: 1.5rem;
+		margin-bottom: 1.5rem;
+		text-align: center;
+	}
+
+	/* Image placeholder: a dashed box with a fixed 4:3 shape.
+	   To swap in a real image later, replace the <div> with
+	   <Image src={...} alt="..." class="image-placeholder" />
+	   and it will take up the same space. */
+	.image-placeholder {
+		display: grid;
+		place-items: center;
+		width: 100%;
+		max-width: 600px;
+		aspect-ratio: 4 / 3;
+		margin: 0 auto 1.5rem;
+		border: 2px dashed #c9c2b2;
+		border-radius: 8px;
+		color: #8a8273;
+		object-fit: cover; /* used once this is a real <img> */
+	}
+</style>
+
+<style>
+	/* Scoped styles: only affect elements in this file. */
+
+	/* ---- Top bar ----
+	   Layers, bottom to top:
+	     1. sky   = the header's own background
+	     2. grass = header::after, pinned to the bottom edge (z-index 1)
+	     3. nav   = links + bird, drawn above the grass (z-index 2) */
+	.top-bar {
+		--grass-h: 56px; /* height of the grass strip */
+		--bird-w: 130px; /* width of the bird */
+		--ink: #13202e; /* dark link color that reads well on the blue */
+
+		position: relative; /* makes ::after measure from the header's edges */
+		padding: 0.75rem 1.5rem var(--grass-h); /* bottom padding = grass, so links sit in the sky */
+		background: url('/images/header/header-sky.png') repeat-x center / auto 100%;
+	}
+
+	/* The grass strip: an extra box CSS creates without any HTML. */
+	.top-bar::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: var(--grass-h);
+		background: url('/images/header/header-grass.png') repeat-x left bottom / auto 100%;
+		z-index: 1;
+		pointer-events: none; /* never blocks clicks */
+	}
+
+	/* 3-column grid: [left links] [bird] [right links].
+	   The two 1fr columns are always equal width, which keeps the bird dead center. */
+	nav {
+		position: relative;
+		z-index: 2;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		grid-template-areas: 'left bird right';
+		align-items: center;
+		column-gap: 2rem;
+		max-width: 1100px;
+		margin: 0 auto;
+	}
+	.nav-left {
+		grid-area: left;
+		justify-content: flex-end; /* hug the bird */
+	}
+	.nav-right {
+		grid-area: right;
+		justify-content: flex-start; /* hug the bird */
+	}
+	nav ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.5rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	/* The bird: aligned to the bottom of its row, then pulled down into the grass. */
+	.bird-link {
+		grid-area: bird;
+		align-self: end;
+		margin-bottom: calc(var(--grass-h) * -0.6);
+		line-height: 0; /* removes the small gap under inline images */
+	}
+	.bird-link img {
+		display: block;
+		width: var(--bird-w);
+		height: auto;
+	}
+
+	/* Links: dark ink, with a soft light glow so they stay crisp on the textured sky. */
+	nav ul a {
+		color: var(--ink);
+		font-weight: 600;
+		font-size: 1.05rem;
+		text-decoration: none;
+		text-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
+		padding-bottom: 2px;
+		border-bottom: 2px solid transparent;
+	}
+	nav ul a:hover {
+		border-bottom-color: rgba(19, 32, 46, 0.4);
+	}
+	/* The current page's link gets a solid underline. */
+	nav ul a[aria-current='page'] {
+		border-bottom-color: currentColor;
+	}
+
+	/* ---- Phones ----
+	   Row 1: bird, standing on the grass.
+	   Row 2: all four links, on a cream band under the panel. */
+	@media (max-width: 600px) {
+		.top-bar {
+			--bird-w: 100px;
+			--grass-h: 44px;
+			--links-row: 3rem;
+
+			padding: 0.75rem 1rem var(--links-row);
+			/* Two background layers: a cream band at the bottom, on top of the sky. */
+			background:
+				linear-gradient(#fffdf8, #fffdf8) left bottom / 100% var(--links-row) no-repeat,
+				url('/images/header/header-sky.png') repeat-x center / auto 100%;
+		}
+		/* Lift the grass so it sits just above the links row, under the bird. */
+		.top-bar::after {
+			bottom: var(--links-row);
+		}
+		nav {
+			grid-template-columns: 1fr 1fr;
+			grid-template-areas:
+				'bird bird'
+				'left right';
+			column-gap: 1.25rem;
+		}
+		.bird-link {
+			justify-self: center;
+			margin-bottom: 0;
+			/* The bird's bottom lines up with the bottom of the grass; lift it a little
+			   so its feet land partway up the blades, matching desktop. */
+			transform: translateY(calc(var(--grass-h) * -0.4));
+		}
+		.nav-left,
+		.nav-right {
+			height: var(--links-row);
+			margin-bottom: calc(var(--links-row) * -1); /* place the links inside the cream band */
+			align-items: center;
+			gap: 1.25rem;
+		}
+		nav ul a {
+			font-size: 1rem;
+			text-shadow: none;
+		}
+	}
+	main {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 1.5rem;
+	}
+</style>

@@ -1,11 +1,36 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// index.astro → the Home page, served at "/"
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout>
+	<!-- Hero: "Watching the Grass Grow" print. Walking-legs animation comes later. -->
+	<section class="placeholder hero" aria-label="Featured print">
+		<p>[Hero: <em>Watching the Grass Grow</em> print goes here]</p>
+	</section>
+
+	<!-- Short intro to Deb and her work -->
+	<section class="placeholder intro">
+		<h1>Deb Koffman</h1>
+		<p class="tagline">Cultivating kindness, 1 cartoon at a time.</p>
+		<p>[Intro: a few sentences about Deb and her art]</p>
+	</section>
+
+	<!-- Draw a random Soul Support card -->
+	<section class="placeholder draw-card">
+		<h2>Draw a Soul Support card</h2>
+		<p>[Card draw goes here]</p>
+	</section>
+</BaseLayout>
+
+<style>
+	/* .placeholder is defined globally in BaseLayout.astro */
+	.hero {
+		min-height: 50vh;
+		display: grid;
+		place-items: center;
+	}
+	.tagline {
+		font-style: italic;
+	}
+</style>
