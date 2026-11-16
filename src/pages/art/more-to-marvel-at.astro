@@ -1,0 +1,33 @@
+---
+// art/more-to-marvel-at.astro → served at "/art/more-to-marvel-at"
+// Placeholder for now: the third door on Her Art leads here.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="More to Marvel At">
+	<h1 class="page-title">More to Marvel At</h1>
+
+	<p class="coming-soon">Coming soon.</p>
+
+	<p class="back">
+		<a class="back-link" href="/art">← Back to Her Art</a>
+	</p>
+</BaseLayout>
+
+<style>
+	.page-title {
+		text-align: center;
+		margin: 1rem 0 2rem;
+	}
+	.coming-soon {
+		text-align: center;
+	}
+	.back {
+		text-align: center;
+		margin: 3rem 0;
+	}
+	.back-link {
+		color: inherit;
+		font-weight: 600;
+	}
+</style>

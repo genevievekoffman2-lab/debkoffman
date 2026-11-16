@@ -25,7 +25,9 @@ import type { ImageMetadata } from 'astro';
 import ComplaintBoothImg from '../assets/images/her-art/booths/complaint-t.jpg';
 import SingYourHeartOutImg from '../assets/images/her-art/booths/sing-800.jpg';
 import SingYourHeartOut_MartyImg from '../assets/images/her-art/booths/sing-mart-800.jpg';
-
+import WhisperWishImg from '../assets/images/her-art/booths/whisper-300dpi.jpg';
+import WhisperWish_MartyImg from '../assets/images/her-art/booths/whisper-mart.jpg';
+import SignsImg from '../assets/images/her-art/booths/signs-800.jpg';
 
 /** One photo in an entry's gallery. */
 export interface InstallationPhoto {
@@ -78,17 +80,33 @@ export const installations: Installation[] = [
 			}, 
 		],
 	},
-	{
+	{ //TODO add link to ordering this print
 		slug: 'signs-of-well-being',
 		title: 'Signs of Well-Being Installation',
 		kind: 'installation',
-		description: '[Placeholder description of the Signs of Well-Being Installation.]',
+		description: 'I need to hear, and see words that encourage my well-being, lift my spirits and open my heart.  These do that for me. I made them big so they would fill the space around me and I could hear them LOUD AND CLEAR. There are other words I hear (inside and outside myself) that aren’t so encouraging.  I know they only encourage suffering because  they deaden me, make me feel depressed, anxious, worthless, ‘stupid’.   I don’t need to hear them any bigger or louder, but I do find it useful to feel, and see the difference between them. The interesting thing is that I have a choice which words to pay attention to.  There are people and places and voices that support my well-being.  It seems  essential to surround myself with those voices. You can order this print as a reminder for your well-being.',
+		image: SignsImg,
+		imageAlt: 'Debs Signs of well being',
+		// photos: [
+		// 	{
+		// 		src: SingYourHeartOut_MartyImg,
+		// 		alt: 'Sing your heart out Booth with Marty',
+		// 	}, 
+		// ],
 	},
 	{
 		slug: 'whisper-your-wish-booth',
 		title: 'Whisper Your Wish Booth',
 		kind: 'booth',
-		description: '[Placeholder description of the Whisper Your Wish Booth.]',
+		description: 'Whisper your wish…and then set it free.  This is my brother, Marty, demonstrating how the booth works.',
+		image: WhisperWishImg,
+		imageAlt: 'debs whisper wish booth',
+		photos: [
+			{
+				src: WhisperWish_MartyImg,
+				alt: 'Whisper Wish Booth with Marty',
+			}, 
+		],
 	},
 	{
 		slug: 'complaint-booth',

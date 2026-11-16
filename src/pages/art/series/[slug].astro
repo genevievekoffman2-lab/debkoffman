@@ -4,7 +4,11 @@
 // [slug] in the filename is a placeholder. getStaticPaths() below tells Astro
 // every value it can take, so Astro builds one page for each entry in series.ts.
 import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PhotoGrid from '../../../components/PhotoGrid.astro';
+import Lightbox from '../../../components/Lightbox.astro';
+import { lightboxSrc } from '../../../lib/lightbox';
 import { series, type Series } from '../../../data/series';
 
 export const getStaticPaths = (() => {
@@ -19,14 +23,49 @@ interface Props {
 }
 
 const { series: s } = Astro.props;
+
+// URL of a large copy of the intro photo, for the lightbox (none if there's no intro photo).
+const introFull = s.introImage ? await lightboxSrc(s.introImage) : undefined;
 ---
 
 <BaseLayout title={s.title}>
 	<article class="series-page">
 		<h1>{s.title}</h1>
-		<p class="description">{s.description}</p>
+		{
+			s.introImage ? (
+				<div class="intro">
+					<p class="description">{s.description}</p>
+					{/* A button so it can be clicked (or reached with Tab + Enter) to open the lightbox. */}
+					<button
+						type="button"
+						class="intro-photo"
+						data-lightbox-src={introFull}
+						data-lightbox-alt={s.introImageAlt ?? ''}
+						aria-haspopup="dialog"
+						aria-label={`Enlarge: ${s.introImageAlt ?? s.title}`}
+					>
+						<Image
+							src={s.introImage}
+							alt={s.introImageAlt ?? ''}
+							widths={[400, 800]}
+							sizes="(max-width: 700px) 100vw, 260px"
+							class="intro-image"
+						/>
+					</button>
+					<Lightbox />
+				</div>
+			) : (
+				<p class="description">{s.description}</p>
+			)
+		}
 
-		<div class="placeholder pieces">[Pieces in this series go here]</div>
+		{
+			s.photos && s.photos.length > 0 ? (
+				<PhotoGrid photos={s.photos} />
+			) : (
+				<div class="placeholder pieces">[Pieces in this series go here]</div>
+			)
+		}
 
 		<a class="back-link" href="/art/series">← Back to Series</a>
 	</article>
@@ -46,6 +85,78 @@ const { series: s } = Astro.props;
 		margin: 0 auto 2rem;
 		font-size: 1.125rem;
 	}
+
+	/* Description left, photo right, spanning the full screen width (full bleed,
+	   same trick as PhotoGrid). The photo is held to the height of 4 lines of the
+	   description (4 lines × 1.5 line-height × 1.125rem = 6.75rem ≈ 108px) and keeps
+	   its own shape, uncropped. The text fills all the remaining width. */
+	.intro {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 2rem;
+		align-items: center;
+		width: 100vw;
+		margin: 0 0 2rem calc(50% - 50vw);
+		text-align: left;
+	}
+	.intro .description {
+		max-width: none;
+		margin: 0;
+		padding-left: 1.5rem; /* same side space as the rest of the page */
+	}
+	/* The photo's button: no button look, just the photo. overflow: hidden keeps
+	   the hover zoom inside the photo's own box, like the gallery tiles. */
+	.intro-photo {
+		display: block;
+		padding: 0;
+		border: 0;
+		background: none;
+		overflow: hidden;
+		cursor: zoom-in;
+	}
+	.intro-image {
+		display: block;
+		height: 6.75rem;
+		width: auto; /* width follows from the height, so nothing is cropped */
+		transition:
+			transform 0.3s ease,
+			filter 0.3s ease;
+	}
+	/* Same subtle hover as the gallery tiles. */
+	.intro-photo:hover .intro-image,
+	.intro-photo:focus-visible .intro-image {
+		transform: scale(1.05);
+		filter: brightness(1.08);
+	}
+	.intro-photo:focus-visible {
+		outline: 3px solid #13202e;
+		outline-offset: -3px;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.intro-image {
+			transition: none;
+		}
+		.intro-photo:hover .intro-image,
+		.intro-photo:focus-visible .intro-image {
+			transform: none;
+		}
+	}
+	/* Phones: text on top, then the photo across the full width. */
+	@media (max-width: 700px) {
+		.intro {
+			grid-template-columns: 1fr;
+			gap: 1.25rem;
+		}
+		.intro .description {
+			padding: 0 1.5rem;
+		}
+		.intro-photo,
+		.intro-image {
+			width: 100%;
+			height: auto;
+		}
+	}
+
 	.pieces {
 		min-height: 300px;
 		display: grid;

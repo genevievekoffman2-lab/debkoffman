@@ -1,29 +1,27 @@
 ---
 // shop.astro → the Shop landing page, served at "/shop"
-// No products here: visitors pick a collection from the bar first.
+// One card per collection in src/data/shopCategories.ts (same order as that list).
+// Each card links to /shop/<slug>.
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ShopNav from '../components/ShopNav.astro';
+import CardGrid from '../components/CardGrid.astro';
+import { shopCategories } from '../data/shopCategories';
 ---
 
 <BaseLayout title="Shop">
-	<ShopNav slot="subnav" />
+	<h1 class="page-title">Shop</h1>
 
-	<section class="shop-landing">
-		<h1>Shop</h1>
-		<p>Choose a collection to browse.</p>
-	</section>
+	<div class="shop-cards">
+		<CardGrid items={shopCategories} baseUrl="/shop" />
+	</div>
 </BaseLayout>
 
 <style>
-	.shop-landing {
+	.page-title {
 		text-align: center;
-		padding: 3rem 0 4rem;
+		margin: 1rem 0 2rem;
 	}
-	.shop-landing h1 {
-		margin: 0 0 0.5rem;
-	}
-	.shop-landing p {
-		font-size: 1.125rem;
-		color: #5a5347;
+	/* Space below the grid before the footer. */
+	.shop-cards {
+		margin-bottom: 3rem;
 	}
 </style>

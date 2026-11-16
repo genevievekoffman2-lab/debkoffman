@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import LinkCard from '../components/LinkCard.astro';
 import seriesDoor from '../assets/images/her-art/series-door.png';
 import installationsDoor from '../assets/images/her-art/installations-door.png';
+import moreDoor from '../assets/images/her-art/more-to-marvel-at-door.png';
 ---
 
 <BaseLayout title="Her Art"> 
@@ -19,6 +20,11 @@ import installationsDoor from '../assets/images/her-art/installations-door.png';
 			image={installationsDoor}
 			variant="door"
 		/>
+		<LinkCard
+			href="/art/more-to-marvel-at"
+			image={moreDoor}
+			variant="door"
+		/>
 	</div>
 </BaseLayout>
 
@@ -28,12 +34,12 @@ import installationsDoor from '../assets/images/her-art/installations-door.png';
 		margin: 1rem 0 2rem;
 	}
 
-	/* Two equal columns side by side on desktop. */
+	/* Three equal columns side by side on desktop (Series, Installations, More to Marvel At). */
 	.art-cards {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: 2rem;
-		max-width: 1000px;
+		max-width: 2000px;
 		margin: 0 auto 3rem;
 	}
 

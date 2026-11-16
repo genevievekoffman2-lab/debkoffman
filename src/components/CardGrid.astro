@@ -1,8 +1,8 @@
 ---
 // CardGrid.astro
 // A responsive grid of clickable cards: a square image (or a dashed placeholder
-// labeled with the title), then the title below. Used by /art/series and
-// /art/installations.
+// labeled with the title), then the title below. Used by /art/series,
+// /art/installations, and /shop.
 //
 // Usage:
 //   <CardGrid items={series} baseUrl="/art/series" />
@@ -11,7 +11,7 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 // Any list whose entries have at least these fields works here.
-// Series and Installation entries both do.
+// Series, Installation, and ShopCategory entries all do.
 export interface CardItem {
 	slug: string;
 	title: string;

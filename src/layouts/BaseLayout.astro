@@ -105,6 +105,10 @@ const isCurrent = (href: string) =>
 		line-height: 1.5;
 		color: #222;
 		background: #fffdf8;
+		/* Full-width sections (like PhotoGrid) use 100vw, which on some computers
+		   includes the scrollbar and would cause a tiny sideways scroll. clip hides
+		   that overflow without breaking anything else. */
+		overflow-x: clip;
 	}
 
 	/* Dashed boxes that mark where content will go. Shared by all pages. Remove later. */

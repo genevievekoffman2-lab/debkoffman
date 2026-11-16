@@ -1,0 +1,123 @@
+---
+// PhotoGrid.astro
+// A gapless, full-width grid of square photo tiles. Clicking a tile opens the
+// full, uncropped photo in the shared lightbox (src/components/Lightbox.astro).
+//
+// Usage (on any page):
+//   import PhotoGrid from '../components/PhotoGrid.astro';
+//   <PhotoGrid photos={[{ src: someImport, alt: 'What the photo shows' }, ...]} />
+//
+// The grid breaks out of the page's text column to span the whole screen,
+// edge to edge. 5 columns on desktop, 3 on tablets and phones.
+import { Image } from 'astro:assets';
+import Lightbox from './Lightbox.astro';
+import { lightboxSrc } from '../lib/lightbox';
+import type { GalleryPhoto } from '../data/series';
+
+interface Props {
+	photos: GalleryPhoto[];
+}
+
+const { photos } = Astro.props;
+
+// For each photo, also get the URL of a large version for the lightbox.
+const tiles = await Promise.all(photos.map(async (p) => ({ ...p, full: await lightboxSrc(p.src) })));
+---
+
+<div class="photo-grid-wrap">
+	<ul class="photo-grid">
+		{
+			tiles.map((t) => (
+				<li>
+					<button
+						type="button"
+						class="tile"
+						data-lightbox-src={t.full}
+						data-lightbox-alt={t.alt}
+						aria-haspopup="dialog"
+						aria-label={`Enlarge: ${t.alt}`}
+					>
+						<Image
+							src={t.src}
+							alt={t.alt}
+							widths={[300, 600]}
+							sizes="(max-width: 900px) 34vw, 20vw"
+							class="tile-image"
+						/>
+					</button>
+				</li>
+			))
+		}
+	</ul>
+</div>
+
+<Lightbox />
+
+<style>
+	/* Full bleed: stretch to the full screen width even though the page content
+	   sits in a narrower centered column. 50% = half the column, 50vw = half the
+	   screen, so this pulls each side out to the screen edge. */
+	.photo-grid-wrap {
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
+		margin-bottom: 2.5rem;
+	}
+
+	/* Gapless grid: no gap, no padding. 5 columns on desktop. */
+	.photo-grid {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: 0;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	@media (max-width: 900px) {
+		.photo-grid {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+
+	/* Each tile is a square button. overflow: hidden keeps the hover zoom
+	   inside the tile, so the grid never shifts. */
+	.tile {
+		display: block;
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		padding: 0;
+		border: 0;
+		background: #eee8dc;
+		overflow: hidden;
+		cursor: zoom-in;
+	}
+	/* object-fit: cover fills the square and crops the edges, so every tile lines up. */
+	.tile-image {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition:
+			transform 0.3s ease,
+			filter 0.3s ease;
+	}
+	.tile:hover .tile-image,
+	.tile:focus-visible .tile-image {
+		transform: scale(1.05);
+		filter: brightness(1.08);
+	}
+	/* Keyboard focus ring drawn inside the tile so it isn't cut off by neighbors. */
+	.tile:focus-visible {
+		outline: 3px solid #13202e;
+		outline-offset: -3px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.tile-image {
+			transition: none;
+		}
+		.tile:hover .tile-image,
+		.tile:focus-visible .tile-image {
+			transform: none;
+		}
+	}
+</style>

@@ -1,0 +1,111 @@
+---
+// Lightbox.astro
+// The shared photo overlay: a native <dialog> that shows one full, uncropped
+// photo over a dark backdrop. Escape, clicking the backdrop, or × closes it.
+//
+// How to use it:
+//   1. Put <Lightbox /> anywhere on the page (PhotoGrid already includes it).
+//      Including it more than once is fine: Astro only adds the script once,
+//      and only one dialog is ever created.
+//   2. Make any button a trigger by giving it two attributes:
+//        data-lightbox-src="<URL of the large photo>"
+//        data-lightbox-alt="<description of the photo>"
+//      Get the large photo's URL with lightboxSrc() from src/lib/lightbox.ts.
+//
+// This component draws nothing itself. The script creates the dialog the first
+// time a photo is opened, so the page HTML stays the same size no matter how
+// many grids or photos use it.
+---
+
+<style is:global>
+	/* is:global because the dialog is created by the script below, after Astro's
+	   scoped styles were applied, so scoped styles wouldn't reach it. */
+	.lightbox {
+		max-width: 92vw;
+		max-height: 92vh;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		overflow: visible;
+	}
+	/* ::backdrop is the dimmed layer the browser puts behind an open modal dialog. */
+	.lightbox::backdrop {
+		background: rgba(0, 0, 0, 0.85);
+	}
+	.lightbox-image {
+		display: block;
+		max-width: 92vw;
+		max-height: 92vh;
+		width: auto;
+		height: auto;
+		object-fit: contain; /* the whole photo, uncropped */
+	}
+	.lightbox-close {
+		position: fixed;
+		top: 0.75rem;
+		right: 1rem;
+		width: 2.75rem;
+		height: 2.75rem;
+		border: 0;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.9);
+		color: #222;
+		font-size: 1.75rem;
+		line-height: 1;
+		cursor: pointer;
+	}
+	.lightbox-close:focus-visible {
+		outline: 3px solid #fff;
+		outline-offset: 2px;
+	}
+</style>
+
+<script>
+	let dialog: HTMLDialogElement | null = null;
+	let img: HTMLImageElement | null = null;
+
+	// Build the dialog once, the first time it's needed.
+	function getDialog() {
+		if (dialog && img) return { dialog, img };
+
+		dialog = document.createElement('dialog');
+		dialog.className = 'lightbox';
+		dialog.setAttribute('aria-label', 'Enlarged photo');
+
+		const closeBtn = document.createElement('button');
+		closeBtn.type = 'button';
+		closeBtn.className = 'lightbox-close';
+		closeBtn.setAttribute('aria-label', 'Close');
+		closeBtn.textContent = '×';
+		closeBtn.addEventListener('click', () => dialog!.close());
+
+		img = document.createElement('img');
+		img.className = 'lightbox-image';
+		img.alt = '';
+
+		dialog.append(closeBtn, img);
+		document.body.append(dialog);
+
+		// Clicking the dark backdrop reports the <dialog> itself as the target
+		// (clicks on the photo report the <img>), so close only in that case.
+		dialog.addEventListener('click', (e) => {
+			if (e.target === dialog) dialog!.close();
+		});
+		// Clear the photo after closing so the old one doesn't flash next time.
+		dialog.addEventListener('close', () => img!.removeAttribute('src'));
+
+		return { dialog, img };
+	}
+
+	// One listener for the whole page: any click on (or inside) an element with
+	// data-lightbox-src opens that photo. showModal() adds the backdrop and makes
+	// Escape close the dialog automatically.
+	document.addEventListener('click', (e) => {
+		const trigger = (e.target as Element).closest<HTMLElement>('[data-lightbox-src]');
+		if (!trigger) return;
+		const { dialog, img } = getDialog();
+		img.src = trigger.dataset.lightboxSrc ?? '';
+		img.alt = trigger.dataset.lightboxAlt ?? '';
+		dialog.showModal();
+	});
+</script>

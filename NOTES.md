@@ -495,3 +495,54 @@ A running log of what was built and why. Newest at the bottom.
 - `<Image widths={[400, 800]} sizes=...>` makes two sizes of each photo. The browser downloads the one that fits the screen (**`srcset`**).
 - The Complaint Booth now has 2 photos: `complaint-t.jpg` (the booth) and `complaint-marty-800.jpg` (someone complaining into it). Both are in `src/assets/images/her-art/booths/`.
 - The how-to comment at the top of `installations.ts` was updated to explain cover images vs. gallery photos and to name the real folder.
+
+## Step 21: Third door on Her Art: "More to Marvel At"
+- **Files:** `src/pages/art.astro`, `src/pages/art/more-to-marvel-at.astro` (new)
+- A third door, `src/assets/images/her-art/more-to-marvel-at-door.png`, now sits beside Series and Installations. It links to `/art/more-to-marvel-at`.
+- The `.art-cards` grid went from 2 to 3 columns, and its max width from 1000px to 1200px so each door stays a good size. On phones (≤700px) the doors still stack in one column.
+- `/art/more-to-marvel-at` is a placeholder page for now ("Coming soon" + back link), so the door doesn't lead to a 404.
+
+## Step 22: Shop uses cards instead of the category bar
+- **Files:** `src/pages/shop.astro`, `src/pages/shop/[slug].astro`, `src/data/shopCategories.ts`, `src/components/CardGrid.astro` (comments only). **Deleted:** `src/components/ShopNav.astro`
+- `/shop` now shows a "Shop" heading and one card per category, using the same `CardGrid` as Series and Installations: 3x8 Notecards, 4x6 Notecards, Soul Support, Books, Prints. The order comes from the list in `shopCategories.ts`. Each card links to `/shop/<slug>`.
+- Each category in `shopCategories.ts` has two new optional fields, **`image`** and **`imageAlt`**. Until a category has an image, its card shows a dashed placeholder with the category name. Instructions for adding images (from `src/assets/images/shop/`) are in the comment at the top of that file.
+- Category pages (`/shop/<slug>`): ShopNav was replaced with a "← Back to Shop" link at the top, styled like the back links on Series/Installations. The product grid and the `ProductDialog` overlay are unchanged.
+- `ShopNav.astro` wasn't used anywhere anymore, so it was deleted (`git rm`). The empty `<slot name="subnav" />` in `BaseLayout.astro` was kept; it shows nothing when no page fills it.
+- No change was needed for the top bar: `isCurrent()` in `BaseLayout.astro` already marks "Shop" on `/shop` and anything under `/shop/`.
+
+## Step 23: Gapless photo grid + lightbox (Sitting Buddhas)
+- **New files:** `src/components/PhotoGrid.astro`, `src/data/galleries/sitting-buddhas.ts`
+- **Changed:** `src/data/series.ts`, `src/pages/art/series/[slug].astro`, `src/layouts/BaseLayout.astro`
+- **PhotoGrid** is a reusable component: `<PhotoGrid photos={[{ src, alt }, ...]} />`.
+  - Square tiles with no gaps. `object-fit: cover` fills each square and crops the edges, so all tiles line up.
+  - 5 columns on desktop, 3 at 900px wide and below (tablets and phones).
+  - **Full bleed** (full width, edge to edge): `width: 100vw; margin-left: calc(50% - 50vw)` pulls the grid out of the centered text column to the edges of the screen.
+  - Hover: the photo zooms 5% and brightens a little *inside* its tile. `overflow: hidden` on the tile keeps the zoom from spilling over, so the grid never moves.
+  - **Lightbox**: an overlay showing the full, uncropped photo, using a native `<dialog>`. `showModal()` gives the dark `::backdrop` and makes Escape close it for free. Clicking the backdrop or the × button also closes it.
+  - `getImage()` makes a large webp (up to 1600px wide) for the lightbox, while the tiles use smaller 300/600px versions picked through `srcset`.
+- **Data:** `Series` has a new optional field, `photos` (a list of `GalleryPhoto`: `{ src, alt }`). Each series keeps its photo list in its own file in `src/data/galleries/`. A series page shows the grid when it has photos; otherwise it shows the old placeholder.
+- Sitting Buddhas has 12 photos: an overview of a buddha holding a pile of signs (`all.jpg`), then one buddha per feeling. Each has alt text naming the sign's word and color.
+- `BaseLayout.astro`: added `overflow-x: clip` to `body`, so `100vw` can't cause a tiny sideways scroll on computers where the scrollbar takes up space.
+- **To add a grid to another series:** create `src/data/galleries/<slug>.ts` like the Sitting Buddhas one, import it in `series.ts`, and set `photos:` on that series.
+
+## Step 24: (tried and undone) Image beside the Sitting Buddhas description
+- I tried putting the Love buddha beside the description, first inside the page column and then full width. Neither looked right, so it was removed. The page is back to a centered description followed by the full-width photo grid, and the Love buddha appears only in the grid.
+
+## Step 25: Exhibit photo to the right of the Sitting Buddhas description
+- **Files:** `src/data/series.ts`, `src/pages/art/series/[slug].astro`
+- New optional fields on `Series`: **`introImage`** and **`introImageAlt`**. Sitting Buddhas uses `src/assets/images/series/sitting-buddhas/sittingbuddhas-exhibit.jpg`, a photo of four of the buddha paintings hanging in a gallery.
+- Layout: description on the left, photo on the right. The row is **full bleed** (edge to edge, like PhotoGrid), and the photo touches the right edge of the screen.
+- Height: the photo is fixed at `6.75rem` (≈108px), the height of 4 lines of description (4 × 1.5 line-height × 1.125rem), so the row is no taller than the description was. `width: auto` keeps the photo's own shape, so nothing is cropped. The text fills the rest of the width.
+- Phones (≤700px): text first, then the photo across the full width.
+- Series without an `introImage` still show the centered description.
+
+
+## Step 26: Exhibit photo opens in the lightbox too; shared Lightbox component
+- **New files:** `src/components/Lightbox.astro`, `src/lib/lightbox.ts`
+- **Changed:** `src/components/PhotoGrid.astro`, `src/pages/art/series/[slug].astro`
+- The lightbox used to live inside PhotoGrid, so only gallery tiles could open it. It now has its own component, **Lightbox**, that any photo on the page can use:
+  - Put `<Lightbox />` on the page. PhotoGrid already includes it. Including it more than once is fine, because Astro bundles the script only once.
+  - Give any button `data-lightbox-src="<large photo URL>"` and `data-lightbox-alt="<description>"`. A single click listener on the whole page opens whichever photo was clicked (**event delegation**: one listener on a parent handles clicks for many children).
+  - `lightboxSrc(image)` in `src/lib/lightbox.ts` makes the large webp copy (up to 1600px) and returns its URL.
+  - The script creates the `<dialog>` the first time it's needed, so there's only ever one. Its styles use `is:global` because Astro's normal (scoped) styles don't reach elements created by a script.
+- The Sitting Buddhas exhibit photo is now a button: clicking it (or pressing Tab, then Enter) opens the full photo in the same overlay. It has the same hover as the tiles (slight zoom and brighten, kept inside its own box).
