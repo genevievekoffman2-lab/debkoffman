@@ -1,12 +1,212 @@
 ---
 // about.astro → the About Deb page, served at "/about"
 import BaseLayout from '../layouts/BaseLayout.astro';
+import IconDivider from '../components/IconDivider.astro';
+import feet from '../assets/images/icons/feet1.png';
+import { Image } from 'astro:assets';
+import blessings from '../assets/images/about/mailchimp-blessings.png';
 ---
 
 <BaseLayout title="About Deb">
-	<section class="placeholder">
-		<h1>About Deb</h1>
-		<p>[Deb's story goes here]</p>
-		<div class="image-placeholder">[Image goes here]</div>
-	</section>
+	<article class="about">
+		<h1 class="page-title">About Deb</h1>
+
+		<!-- 1. Intro: photo + opening paragraph, side by side on desktop -->
+		<section class="intro">
+			<div class="image-placeholder intro-photo">[Photo of Deb 1]</div>
+			<div class="intro-text">
+				<p>
+					I make art (stories, poems, cartoons, installations, card decks) to understand, reflect and honor my emotions and thinking patterns. I write stories about choice, poems that give me advice, cartoons that remind me what really matters to my heart and soul.
+					I’m deeply drawn to Buddhist teachings and to the practice of meditation and mindful awareness. I practice paying attention to my reactions, my thinking, my speech, my physical sensations. My books, cartoons and card decks all offer me guidance, wise advice, reminders when I’m stuck or struggling, lost or confused.
+					My hope is that my work encourages your well-being, helping you navigate your emotional and mental life more easily.
+
+				</p>
+			</div>
+		</section>
+
+		<!-- 2. -->
+		<IconDivider src={feet} />
+
+		<!-- 3 + 6: story text and Deb's blessings note, side by side on desktop -->
+		<div class="story">
+		<!-- 3. -->
+		<section class="prose">
+			<h2> More About Deb</h2>
+			<p>
+				When I moved to the Berkshires in 1988 I didn’t know a thing about spirituality or feelings or healing or art. I was deeply deeply unhappy and confused about life. I didn’t know what mattered, I didn’t know how I mattered.
+			</p>
+			<p>
+				By chance, and grace I discovered Kripalu, Gurudev, yoga, and an amazing community of body-centered healers. My whole world changed. 
+				What I wore, what I ate, what I thought about, my friends, the pace I moved at, what I cared about. I read TONS of books on psychology, physics, mind-body awareness and healing. 
+				I found and studied NLP (neuro-linguistic programming) and Ericksonian Hypnosis with Zen teacher and NLP trainer, Richard Clarke. NLP became a foundation for my thinking and being, and continues to inform my life and art.
+			</p>
+			<p>
+				I studied and trained in Vivation(breathwork), NVC(non-violent communication), authentic movement(a mindfulness based movement practice), continuum, and mindfulness meditation.
+			</p>
+			<p>
+				All of these practices inspired ART. I needed to make visual reminders of what I learned ‘on the cushion’ and in the therapist’s office.
+			</p>
+			<p>
+				Most of my work (on myself and on paper) is about understanding words; concepts, feelings and ideas that don’t make sense to me. Words have the power to ground me and comfort me or twist me into a whirling ball of distress, confusion and fear.
+			</p>
+			<p>
+				Compassion, love, creativity, depression, peace, presence, humility, relax, choice, emptiness.
+				What do these words really mean? Deeply? In my body?  Does ‘crazy’ mean wrong? or different? or brave? or swimming in unknown territory?
+			</p>
+		</section> 
+
+		<!-- 6. Second photo -->
+		<Image
+			src={blessings}
+			alt="Deb's handwritten note: “Thank you ALL for supporting me, my art, my life. May this site inspire you, comfort you, lift your spirits and open your heart. Many blessings, Deb.” Below it, Deb sits in a pink armchair in front of a painted fireplace with a black-and-white cat. debkoffman.com"
+			widths={[480, 720, 960]}
+			sizes="(max-width: 520px) 100vw, 480px"
+			class="blessings"
+		/>
+		</div>
+
+		 
+
+		<!-- 11. Link to Deb's House: the whole card is one link -->
+		<a class="house-link" href="/about/house">
+			<div class="image-placeholder house-photo">[Photo of Deb's house]</div>
+			<span class="house-link-text">Come see Deb's house →</span>
+		</a>
+	</article>
 </BaseLayout>
+
+<style>
+	.about {
+		padding-bottom: 3rem;
+	}
+	.page-title {
+		text-align: center;
+		margin: 1rem 0 2rem;
+	}
+
+	/* Narrow, centered text column: about 65 characters per line. */
+	.prose,
+	.intro-text {
+		max-width: 65ch;
+	}
+	.prose {
+		margin: 0 auto;
+	}
+	.prose h2 {
+		margin-top: 0;
+	}
+	.prose p,
+	.intro-text p {
+		font-size: 1.125rem;
+		line-height: 1.7;
+	}
+
+	/* 1. Intro: two columns on desktop. */
+	.intro {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+		gap: 2.5rem;
+		align-items: center;
+		max-width: 960px;
+		margin: 0 auto;
+	}
+	.intro-photo {
+		margin: 0; /* overrides the global auto-centering; the grid places it */
+	}
+
+	/* 5. Pull quote: bigger, centered, framed by thin rules so it stands out. */
+	.pull-quote {
+		max-width: 40ch;
+		margin: 3rem auto;
+		padding: 1.5rem 0;
+		border-top: 2px solid #c9c2b2;
+		border-bottom: 2px solid #c9c2b2;
+		text-align: center;
+	}
+	.pull-quote p {
+		margin: 0;
+		font-size: clamp(1.5rem, 4vw, 2.25rem); /* scales between phone and desktop */
+		line-height: 1.3;
+		font-style: italic;
+	}
+
+	/* 3 + 6: text column on the left, image column on the right. */
+	.story {
+		display: grid;
+		grid-template-columns: minmax(0, 65ch) minmax(0, 420px);
+		justify-content: center; /* center the pair on wide screens */
+		align-items: start; /* both columns start at the top */
+		gap: 3rem;
+		margin: 0 auto 3rem;
+	}
+	.story .prose {
+		margin: 0; /* the grid places it, so no auto-centering */
+	}
+
+	/* 6. Deb's blessings note: tall image shown at its own proportions (no cropping). */
+	.blessings {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	/* 11. Deb's House card */
+	.house-link {
+		display: block;
+		max-width: 600px;
+		margin: 0 auto;
+		color: inherit;
+		text-decoration: none;
+		text-align: center;
+		border-radius: 10px;
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+	.house-photo {
+		margin-bottom: 0.75rem;
+	}
+	.house-link-text {
+		display: inline-block;
+		font-size: 1.25rem;
+		font-weight: 600;
+		padding-bottom: 0.75rem;
+	}
+	/* Subtle hover: lift slightly and add a soft shadow. */
+	.house-link:hover,
+	.house-link:focus-visible {
+		transform: translateY(-3px);
+		box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+	}
+	.house-link:hover .house-link-text {
+		text-decoration: underline;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.house-link {
+			transition: none;
+		}
+		.house-link:hover,
+		.house-link:focus-visible {
+			transform: none;
+		}
+	}
+
+	/* Narrower screens: stack the story text and the blessings note. */
+	@media (max-width: 900px) {
+		.story {
+			grid-template-columns: minmax(0, 65ch);
+		}
+		.blessings {
+			max-width: 480px;
+			margin: 0 auto;
+		}
+	}
+
+	/* Phones: stack the intro (photo on top, text below). */
+	@media (max-width: 700px) {
+		.intro {
+			grid-template-columns: 1fr;
+			gap: 1.5rem;
+		}
+	}
+</style>

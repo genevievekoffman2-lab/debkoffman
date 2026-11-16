@@ -1,0 +1,50 @@
+---
+// IconDivider.astro
+// A small centered icon used between sections.
+//
+// Right now:  <IconDivider />  → a dashed placeholder circle labeled "[icon]"
+// Later:      import leaf from '../assets/images/icons/leaf.png';
+//             <IconDivider src={leaf} />  → Deb's real icon, optimized by <Image />
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+	src?: ImageMetadata; // an image imported from src/assets/images/icons/
+	alt?: string; // icons are decorative, so this is empty by default
+	size?: number; // width and height in pixels
+}
+
+const { src, alt = '', size = 80 } = Astro.props;
+---
+
+<div class="icon-divider" style={`--icon-size: ${size}px`}>
+	{
+		src ? (
+			<Image src={src} alt={alt} width={size * 2} class="icon" />
+		) : (
+			<div class="icon icon-placeholder" aria-hidden="true">[icon]</div>
+		)
+	}
+</div>
+
+<style>
+	.icon-divider {
+		display: flex;
+		justify-content: center;
+		margin: 3rem auto;
+	}
+	/* Same box for the placeholder and the real image, so swapping doesn't shift anything. */
+	.icon {
+		width: var(--icon-size);
+		height: var(--icon-size);
+		object-fit: contain;
+	}
+	.icon-placeholder {
+		display: grid;
+		place-items: center;
+		border: 2px dashed #c9c2b2;
+		border-radius: 50%;
+		font-size: 0.8rem;
+		color: #8a8273;
+	}
+</style>

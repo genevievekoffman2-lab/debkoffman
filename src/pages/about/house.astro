@@ -1,0 +1,20 @@
+---
+// about/house.astro → the Deb's House page, served at "/about/house"
+// (a file inside a folder in src/pages/ gets that folder's name in its URL)
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Deb's House">
+	<section class="placeholder">
+		<h1>Deb's House</h1>
+		<div class="image-placeholder">[Image goes here]</div>
+		<a class="back-link" href="/about">← Back to About Deb</a>
+	</section>
+</BaseLayout>
+
+<style>
+	.back-link {
+		color: inherit;
+		font-weight: 600;
+	}
+</style>

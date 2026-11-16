@@ -25,9 +25,13 @@ const rightLinks = navLinks.slice(half);
 
 // Work out which link is the current page.
 // Strip a trailing slash so "/about/" and "/about" match the same link.
+// A link counts as current on its own page AND on pages nested under it,
+// e.g. "About Deb" stays marked on /about/house.
 const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isCurrent = (href: string) =>
-	href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+	href === '/'
+		? currentPath === '/'
+		: currentPath === href || currentPath.startsWith(href + '/');
 ---
 
 <!doctype html>

@@ -107,3 +107,123 @@ A running log of what was built and why. Newest at the bottom.
 - **Media query (`@media (max-width: 600px)`)**: CSS that applies only when the
   screen is that narrow or narrower.
 - **CSS variable (`--grass-h`)**: a named value, read with `var(--grass-h)`.
+
+---
+
+## Step 4 — About Deb layout + Deb's House page (2026-11-16)
+
+**What**
+- `src/components/IconDivider.astro` (new): a centered 80px icon between sections.
+  With no props it shows a dashed "[icon]" circle. To use a real icon:
+  `import leaf from '../assets/images/icons/leaf.png'` then `<IconDivider src={leaf} />`.
+- `src/pages/about.astro` (rewritten), top to bottom:
+  - intro (photo and opening paragraph, side by side on desktop, stacked under 700px)
+  - icon divider
+  - section
+  - icon divider
+  - pull quote
+  - photo 2
+  - section
+  - icon divider
+  - section
+  - icon divider
+  - a clickable "Come see Deb's house →" card linking to `/about/house`
+- `src/pages/about/house.astro` (new): heading, image placeholder, and a back link.
+- `BaseLayout.astro`: a nav link now counts as current on its own path or on paths
+  under it (`/about` or `/about/...`), and nowhere else.
+
+**Why**
+- Text sections are capped at `max-width: 65ch` (about 65 characters per line),
+  which is comfortable for reading.
+- The icon divider is a component, so the size and spacing are defined once.
+  Swapping in a real icon is a one-line change, and the real image fills the same box.
+- The old check (`startsWith('/about')`) would also have matched a page like
+  `/aboutsomething`.
+- The house card's hover (a small lift plus a shadow) is turned off for visitors
+  whose system setting asks for reduced motion.
+
+**Terms**
+- **Component**: a reusable `.astro` file you can drop into any page, like `<IconDivider />`.
+- **`ch`**: a CSS unit equal to the width of the "0" character. `65ch` ≈ 65 characters.
+- **`clamp(min, preferred, max)`**: a size that scales with the screen but stays between a minimum and a maximum.
+- **Nested route**: `src/pages/about/house.astro` → `/about/house`.
+- **`prefers-reduced-motion`**: a media query for visitors who have turned on
+  "reduce motion" in their system settings.
+- **`ImageMetadata`**: the type Astro gives an image you `import`. That type is
+  what `<Image />` needs to optimize it.
+
+---
+
+## Step 5 — Her Art landing cards + Series / Installations pages (2026-11-16)
+
+**What**
+- `src/components/LinkCard.astro` (new): a big clickable card (image, title,
+  description). The whole card is one `<a>`. It shows a dashed placeholder until
+  you pass `image={...}`, an image imported from `src/assets/images/`, and then
+  renders it with `<Image />` in the same 4:3 box.
+- `src/pages/art.astro` (rewritten): two `LinkCard`s, "Series" → `/art/series`
+  and "Installations & Booths" → `/art/installations`. They sit side by side in
+  a 2-column grid and stack below 700px.
+- `src/pages/art/series.astro`, `src/pages/art/installations.astro` (new):
+  heading, placeholder line, and "← Back to Her Art".
+- `BaseLayout.astro`: no change. The nested-path check from Step 4 already keeps
+  "Her Art" marked on every `/art/...` page.
+
+**Why**
+- One card component means both cards (and future ones) look and behave the same.
+- Hover and keyboard focus lift the card 4px and add a soft shadow. The lift is
+  turned off for visitors who have reduce-motion switched on.
+- `height: 100%` on the cards keeps both the same height even if one description
+  runs longer.
+
+**Terms**
+- **`minmax(0, 1fr)`**: a grid column that shares space equally and can shrink
+  below its content's natural width, which keeps long words from breaking the layout.
+- **`overflow: hidden`**: clips anything that sticks out of a box. Here it keeps
+  the image inside the card's rounded corners.
+
+---
+
+## Step 6 — Feet icons on About Deb (2026-11-16)
+
+- Copied `public/images/about/feet1.png` → `src/assets/images/icons/feet1.png`.
+  Astro's `<Image />` only optimizes images that live in `src/`.
+- `src/pages/about.astro` imports it (`import feet from '../assets/images/icons/feet1.png'`)
+  and all four dividers are now `<IconDivider src={feet} />`.
+- Astro serves each one as a 160×160 WebP image, much smaller than the 280 KB PNG.
+  It's shown at 80px, and the extra pixels keep it sharp on high-resolution (retina) screens.
+- The PNG's background is pale gray-white, not transparent, so it may show as a
+  faint square on the cream page.
+
+---
+
+## Step 7 — Deb's blessings note on About Deb (2026-11-16)
+
+- Copied `public/images/about/mailchimp-blessings.png` →
+  `src/assets/images/about/mailchimp-blessings.png` so `<Image />` can optimize it.
+- `src/pages/about.astro`: replaced the "[Photo of Deb 2]" placeholder with
+  `<Image src={blessings} ... class="blessings" />`.
+- The image is tall (1380×2100) and has text in it, so it is shown at its own
+  proportions, up to 480px wide and centered, rather than cropped into the
+  4:3 placeholder box.
+- The alt text transcribes Deb's handwritten note, so screen readers read it too.
+- `widths` + `sizes` let the browser pick a 480, 720, or 960px-wide version
+  depending on the screen, instead of downloading the 1.6 MB original.
+
+**Terms**
+- **`widths` / `sizes`**: `widths` tells `<Image />` which versions to generate.
+  `sizes` tells the browser how wide the image will display, so it can download
+  the smallest version that still looks sharp.
+- **Alt text**: a written description of an image, read aloud by screen readers.
+  It also shows if the image fails to load.
+
+---
+
+## Step 8 — "More About Deb" text beside the blessings note (2026-11-16)
+
+- `src/pages/about.astro`: wrapped section 3 ("More About Deb") and section 6
+  (the blessings image) in a `<div class="story">`. It's a two-column grid, with the
+  text (up to 65ch) on the left and the image (up to 420px) on the right, both
+  starting at the top.
+- Below 900px wide they stack: text first, then the image (up to 480px, centered).
+  The breakpoint is wider than the intro's 700px because these two columns need more room.

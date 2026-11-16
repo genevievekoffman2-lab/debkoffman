@@ -1,12 +1,48 @@
 ---
 // art.astro → the Her Art page, served at "/art"
 import BaseLayout from '../layouts/BaseLayout.astro';
+import LinkCard from '../components/LinkCard.astro';
 ---
 
 <BaseLayout title="Her Art">
-	<section class="placeholder">
-		<h1>Her Art</h1>
-		<p>[Series and Installations go here]</p>
-		<div class="image-placeholder">[Image goes here]</div>
-	</section>
+	<h1 class="page-title">Her Art</h1>
+
+	<div class="art-cards">
+		<LinkCard
+			href="/art/series"
+			title="Series"
+			description="[A short line about Deb's cartoon series]"
+			placeholder="[Series image]"
+		/>
+		<LinkCard
+			href="/art/installations"
+			title="Installations & Booths"
+			description="[A short line about Deb's installations and booths]"
+			placeholder="[Installations image]"
+		/>
+	</div>
 </BaseLayout>
+
+<style>
+	.page-title {
+		text-align: center;
+		margin: 1rem 0 2rem;
+	}
+
+	/* Two equal columns side by side on desktop. */
+	.art-cards {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 2rem;
+		max-width: 1000px;
+		margin: 0 auto 3rem;
+	}
+
+	/* Phones: one column, cards stacked. */
+	@media (max-width: 700px) {
+		.art-cards {
+			grid-template-columns: 1fr;
+			gap: 1.5rem;
+		}
+	}
+</style>

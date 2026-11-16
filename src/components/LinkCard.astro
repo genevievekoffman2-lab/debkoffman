@@ -1,0 +1,103 @@
+---
+// LinkCard.astro
+// A large clickable card: image on top, then a title and a short description.
+// The whole card is one link.
+//
+// Right now:  <LinkCard href="/art/series" title="Series" placeholder="[Series image]" />
+//             → a dashed placeholder box where the image will go
+// Later:      import seriesImg from '../assets/images/series-cover.jpg';
+//             <LinkCard href="/art/series" title="Series" image={seriesImg} imageAlt="..." />
+//             → the real image, optimized by <Image />, in the same 4:3 box
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+	href: string;
+	title: string;
+	description?: string;
+	image?: ImageMetadata; // an image imported from src/assets/images/
+	imageAlt?: string;
+	placeholder?: string; // label shown in the dashed box until there's a real image
+}
+
+const { href, title, description, image, imageAlt = '', placeholder = '[Image goes here]' } =
+	Astro.props;
+---
+
+<a class="link-card" href={href}>
+	{
+		image ? (
+			<Image src={image} alt={imageAlt} width={800} class="card-image" />
+		) : (
+			<div class="card-image card-image-placeholder">{placeholder}</div>
+		)
+	}
+	<div class="card-body">
+		<h2 class="card-title">{title}</h2>
+		{description && <p class="card-description">{description}</p>}
+	</div>
+</a>
+
+<style>
+	.link-card {
+		display: flex;
+		flex-direction: column;
+		height: 100%; /* cards in the same row match heights */
+		color: inherit;
+		text-decoration: none;
+		background: #fff;
+		border: 1px solid #e5e0d5;
+		border-radius: 12px;
+		overflow: hidden; /* clips the image to the rounded corners */
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	/* Same 4:3 box for the placeholder and the real image, so swapping doesn't shift anything. */
+	.card-image {
+		display: block;
+		width: 100%;
+		aspect-ratio: 4 / 3;
+		object-fit: cover;
+	}
+	.card-image-placeholder {
+		display: grid;
+		place-items: center;
+		border-bottom: 2px dashed #c9c2b2;
+		color: #8a8273;
+		background: #fffdf8;
+	}
+
+	.card-body {
+		padding: 1.25rem 1.5rem 1.5rem;
+		text-align: center;
+	}
+	.card-title {
+		margin: 0 0 0.35rem;
+		font-size: 1.5rem;
+	}
+	.card-description {
+		margin: 0;
+		color: #5a5347;
+	}
+
+	/* Subtle hover: lift slightly and add a soft shadow. Same for keyboard focus. */
+	.link-card:hover,
+	.link-card:focus-visible {
+		transform: translateY(-4px);
+		box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+	}
+	.link-card:hover .card-title {
+		text-decoration: underline;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.link-card {
+			transition: none;
+		}
+		.link-card:hover,
+		.link-card:focus-visible {
+			transform: none;
+		}
+	}
+</style>
