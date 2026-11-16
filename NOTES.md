@@ -392,3 +392,84 @@ A running log of what was built and why. Newest at the bottom.
   `<Image src={houseTulips} width={720} class="house-photo" />`, the same
   `src/assets/images/about/house-tulips.jpg` used on About Deb. It's shown at full size
   (720px max), centered, uncropped, with rounded corners.
+
+---
+
+## Step 16 — Product detail overlay on shop category pages (2026-11-16)
+
+**What**
+- `src/data/products.ts` (new): the `Product` type plus 3–4 placeholder products per
+  category. Each one has `id`, `categorySlug`, `name`, `price` (a number, in dollars),
+  `description`, optional `image`/`imageAlt`, and optional `details` (a list of
+  label/value lines). Also `formatPrice()`, which turns 4.5 into "$4.50".
+- `src/lib/cart.ts` (new): `addToCart(productId, quantity)`. For now it only logs to the
+  console. **This is the one place to connect Shopify or Stripe later.**
+- `src/components/ProductDialog.astro` (new): the single overlay, with its markup,
+  styles and script.
+- `src/pages/shop/[slug].astro`: product cards now come from `products.ts`, filtered by
+  category. Each card is a `<button data-product-id="…">`. The disabled "Add to cart"
+  buttons on the cards are gone, since a button can't contain another button and adding
+  now happens in the overlay. The page includes `<ProductDialog products={…} />`.
+
+**How the data gets into the overlay**
+1. At build time, ProductDialog writes the category's products into the page as JSON
+   (`<script type="application/json" id="product-data">`), with prices already
+   formatted and image URLs already optimized.
+2. On click, the script reads the card's `data-product-id`, finds that product in the
+   JSON, fills in the dialog's name, price, description, details and image, resets the
+   quantity to 1, and calls `dialog.showModal()`.
+
+**Overlay behavior**
+- Closes with ×, Escape (built in), or a click on the backdrop. A click only counts as a
+  backdrop click if the press also started there, so dragging out of a text selection
+  doesn't close it.
+- Every way of closing fires the dialog's `close` event. That handler restores page
+  scrolling and moves focus back to the card that opened the dialog.
+- Page scrolling is locked by setting `overflow: hidden` on `<html>` while the dialog is open.
+- Quantity is kept to a whole number from 1 to 99. "−" is disabled at 1 and "+" at 99,
+  and typed values are corrected when you leave the box.
+- Add to cart calls `addToCart()`, then shows "Added N × Name" in a `role="status"`
+  line, which screen readers announce.
+- Desktop: image left, info right. Phones: nearly full screen, stacked, and the content
+  scrolls while the × stays in the corner.
+- Opening uses a fade/scale-in, turned off when reduced motion is on.
+
+**Terms**
+- **`<dialog>` + `showModal()`**: the browser's built-in modal. It puts the dialog on
+  top, makes the rest of the page unclickable and untabbable ("inert"), keeps focus
+  inside, and closes on Escape.
+- **`::backdrop`**: the full-screen layer behind a modal dialog. It's styled here as a dim overlay.
+- **`data-*` attribute**: a custom attribute for storing your own data on an element,
+  read in JavaScript as `element.dataset.productId`.
+- **JSON**: a text format for data. Here it's how the build passes product info to the browser script.
+- **Client-side script**: JavaScript that runs in the visitor's browser. Astro bundles a
+  plain `<script>` in a component and includes it once per page.
+- **`aria-haspopup="dialog"`**: tells screen readers a button opens a dialog.
+- **`role="status"`**: a polite live region. Screen readers read its new text without moving focus.
+
+---
+
+## Step 17 — "Details" row with category fallback (2026-11-16)
+
+**What**
+- `src/data/products.ts`:
+  - The label/value rows were renamed from `details` to `specs` (type `ProductSpec`).
+  - Added an optional `details?: string`, a sentence for the overlay's Details row.
+  - Removed every Paper and Envelope row.
+- `src/data/shopCategories.ts`: added optional `details?: string`. Both notecard categories
+  use "Single sheet notecard with colorbrite envelope wrapped in cellophane sleeve."
+- `src/components/ProductDialog.astro`:
+  - `overlayRows()` builds the rows: the product's `specs`, then a Details row.
+  - Long values wrap inside the value column, aligned with the other values
+    (`minmax(0, 1fr)` column, `align-items: baseline`).
+
+**Fallback logic** (`p.details ?? category?.details`)
+1. If the product has its own `details`, use it.
+2. Otherwise use its category's `details`.
+3. If neither exists, there's no Details row. If a product has no rows at all, the whole list is hidden.
+
+**Terms**
+- **`??` (nullish coalescing)**: `a ?? b` means "use `a`, unless it's missing
+  (`undefined`/`null`), then use `b`".
+- **`?.` (optional chaining)**: `category?.details` means "`category.details`, or
+  `undefined` if there's no category", instead of crashing.

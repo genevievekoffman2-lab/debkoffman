@@ -2,11 +2,15 @@
 // shop/[slug].astro → one page per shop category, e.g. "/shop/books"
 //
 // getStaticPaths() builds one page for each entry in shopCategories.ts.
-// Products are placeholders for now. A real cart (Shopify or Stripe) comes later.
+// Each page shows the products from products.ts whose categorySlug matches.
+// Clicking a product opens ProductDialog (one shared overlay).
 import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopNav from '../../components/ShopNav.astro';
+import ProductDialog from '../../components/ProductDialog.astro';
 import { shopCategories, type ShopCategory } from '../../data/shopCategories';
+import { products, formatPrice } from '../../data/products';
 
 export const getStaticPaths = (() => {
 	return shopCategories.map((c) => ({
@@ -20,35 +24,42 @@ interface Props {
 }
 
 const { category } = Astro.props;
-
-// Six placeholder products until real ones are connected.
-const placeholderProducts = Array.from({ length: 6 });
+const categoryProducts = products.filter((p) => p.categorySlug === category.slug);
 ---
 
 <BaseLayout title={category.title}>
 	<ShopNav slot="subnav" current={category.slug} />
 
-	<header class="category-header">
-		<h1>{category.title}</h1>
-		<p>{category.description}</p>
+	<header class="category-header"> 
 	</header>
 
-	<ul class="product-grid">
-		{
-			placeholderProducts.map(() => (
-				<li class="product">
-					<div class="product-image" aria-hidden="true">
-						[Image]
-					</div>
-					<h2 class="product-name">[Product name]</h2>
-					<p class="product-price">[Price]</p>
-					<button type="button" class="add-to-cart" disabled>
-						Add to cart
-					</button>
-				</li>
-			))
-		}
-	</ul>
+	{
+		categoryProducts.length === 0 ? (
+			<p class="empty">Nothing here yet. Check back soon.</p>
+		) : (
+			<ul class="product-grid">
+				{categoryProducts.map((p) => (
+					<li>
+						{/* The whole card is a button that opens the overlay. aria-haspopup tells
+						    screen readers it opens a dialog. */}
+						<button type="button" class="product-card" data-product-id={p.id} aria-haspopup="dialog">
+							{p.image ? (
+								<Image src={p.image} alt={p.imageAlt ?? ''} width={600} class="product-image" />
+							) : (
+								<span class="product-image product-placeholder" aria-hidden="true">
+									[Image]
+								</span>
+							)}
+							<span class="product-name">{p.name}</span>
+							<span class="product-price">{formatPrice(p.price)}</span>
+						</button>
+					</li>
+				))}
+			</ul>
+		)
+	}
+
+	<ProductDialog products={categoryProducts} />
 </BaseLayout>
 
 <style>
@@ -62,6 +73,10 @@ const placeholderProducts = Array.from({ length: 6 });
 	}
 	.category-header p {
 		font-size: 1.125rem;
+		color: #5a5347;
+	}
+	.empty {
+		text-align: center;
 		color: #5a5347;
 	}
 
@@ -87,39 +102,67 @@ const placeholderProducts = Array.from({ length: 6 });
 		}
 	}
 
-	.product {
+	/* Card = a button with no button look: image, name, price. */
+	.product-card {
+		display: block;
+		width: 100%;
+		padding: 0;
+		border: none;
+		background: none;
+		font: inherit;
+		color: inherit;
 		text-align: center;
+		cursor: pointer;
 	}
 	.product-image {
+		display: block;
+		width: 100%;
+		height: auto;
+		aspect-ratio: 1 / 1;
+		object-fit: contain;
+		transition:
+			transform 0.2s ease,
+			filter 0.2s ease;
+	}
+	.product-placeholder {
 		display: grid;
 		place-items: center;
-		aspect-ratio: 1 / 1;
 		border: 2px dashed #c9c2b2;
 		border-radius: 8px;
 		color: #8a8273;
 	}
 	.product-name {
+		display: block;
 		margin: 0.75rem 0 0.25rem;
 		font-size: 1.15rem;
+		font-weight: 700;
 	}
 	.product-price {
-		margin: 0 0 0.75rem;
+		display: block;
 		color: #5a5347;
 	}
 
-	/* Disabled until a real cart is connected. */
-	.add-to-cart {
-		font: inherit;
-		font-weight: 600;
-		padding: 0.5rem 1.25rem;
-		border: 2px solid #13202e;
-		border-radius: 999px;
-		background: #13202e;
-		color: #fffdf8;
-		cursor: pointer;
+	/* Same subtle hover lift as the Series/Installations cards. */
+	.product-card:hover .product-image,
+	.product-card:focus-visible .product-image {
+		transform: translateY(-4px);
+		filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.12));
 	}
-	.add-to-cart:disabled {
-		opacity: 0.4;
-		cursor: not-allowed;
+	.product-card:hover .product-name {
+		text-decoration: underline;
+	}
+	.product-card:focus-visible {
+		outline: 3px solid #13202e;
+		outline-offset: 6px;
+		border-radius: 4px;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.product-image {
+			transition: none;
+		}
+		.product-card:hover .product-image,
+		.product-card:focus-visible .product-image {
+			transform: none;
+		}
 	}
 </style>

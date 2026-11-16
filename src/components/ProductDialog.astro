@@ -1,0 +1,444 @@
+---
+// ProductDialog.astro
+// ONE overlay per page, filled in with whichever product card was clicked.
+//
+// How it works:
+//   1. At build time, the products passed in are written into the page as JSON
+//      (<script type="application/json" id="product-data">).
+//   2. Each product card on the page is a <button data-product-id="...">.
+//   3. The script below listens for clicks on those buttons, looks the id up in
+//      the JSON, fills in the dialog, and opens it with dialog.showModal().
+//
+// Usage: <ProductDialog products={categoryProducts} />
+import { getImage } from 'astro:assets';
+import { formatPrice, type Product, type ProductSpec } from '../data/products';
+import { shopCategories } from '../data/shopCategories';
+
+interface Props {
+	products: Product[];
+}
+
+const { products } = Astro.props;
+
+// The overlay's label/value rows: the product's specs (Size, …), then a "Details" row.
+// Details text: the product's own if it has one, otherwise its category's.
+// If neither has any, there's no Details row.
+function overlayRows(p: Product): ProductSpec[] {
+	const category = shopCategories.find((c) => c.slug === p.categorySlug);
+	const detailsText = p.details ?? category?.details;
+	const rows = [...(p.specs ?? [])];
+	if (detailsText) rows.push({ label: 'Details', value: detailsText });
+	return rows;
+}
+
+// Shape the data the browser needs. Real images get an optimized URL here.
+const dialogData = await Promise.all(
+	products.map(async (p) => ({
+		id: p.id,
+		name: p.name,
+		price: formatPrice(p.price),
+		description: p.description,
+		rows: overlayRows(p),
+		image: p.image ? (await getImage({ src: p.image, width: 900 })).src : null,
+		imageAlt: p.imageAlt ?? '',
+	})),
+);
+
+// Escape "<" so nothing in the data can ever close the <script> tag early.
+const json = JSON.stringify(dialogData).replace(/</g, '\\u003c');
+---
+
+<script type="application/json" id="product-data" set:html={json} />
+
+<dialog id="product-dialog" class="product-dialog" aria-labelledby="pd-name">
+	<button type="button" class="pd-close" aria-label="Close">×</button>
+
+	<div class="pd-body">
+		<div class="pd-media">
+			<img id="pd-image" alt="" hidden />
+			<div id="pd-placeholder" class="pd-placeholder" aria-hidden="true">[Image]</div>
+		</div>
+
+		<div class="pd-info">
+			<h2 id="pd-name"></h2>
+			<p id="pd-price" class="pd-price"></p>
+			<p id="pd-description" class="pd-description"></p>
+			<dl id="pd-details" class="pd-details"></dl>
+
+			<form id="pd-form" class="pd-form">
+				<label for="pd-qty" class="pd-qty-label">Quantity</label>
+				<div class="pd-qty">
+					<button type="button" id="pd-minus" aria-label="Decrease quantity">−</button>
+					<input id="pd-qty" type="number" inputmode="numeric" min="1" max="99" step="1" value="1" />
+					<button type="button" id="pd-plus" aria-label="Increase quantity">+</button>
+				</div>
+				<button type="submit" class="pd-add">Add to cart</button>
+			</form>
+
+			<!-- role="status": screen readers announce the confirmation when it appears -->
+			<p id="pd-status" class="pd-status" role="status"></p>
+		</div>
+	</div>
+</dialog>
+
+<script>
+	import { addToCart } from '../lib/cart';
+
+	type DialogProduct = {
+		id: string;
+		name: string;
+		price: string;
+		description: string;
+		rows: { label: string; value: string }[];
+		image: string | null;
+		imageAlt: string;
+	};
+
+	const MIN_QTY = 1;
+	const MAX_QTY = 99;
+
+	const dialog = document.querySelector<HTMLDialogElement>('#product-dialog');
+	const dataEl = document.querySelector('#product-data');
+
+	if (dialog && dataEl) {
+		const products: DialogProduct[] = JSON.parse(dataEl.textContent ?? '[]');
+		const byId = new Map(products.map((p) => [p.id, p]));
+
+		const $ = <T extends HTMLElement>(id: string) => dialog.querySelector<T>(`#${id}`)!;
+		const image = $<HTMLImageElement>('pd-image');
+		const placeholder = $('pd-placeholder');
+		const name = $('pd-name');
+		const price = $('pd-price');
+		const description = $('pd-description');
+		const details = $('pd-details');
+		const form = $<HTMLFormElement>('pd-form');
+		const qty = $<HTMLInputElement>('pd-qty');
+		const minus = $<HTMLButtonElement>('pd-minus');
+		const plus = $<HTMLButtonElement>('pd-plus');
+		const status = $('pd-status');
+		const closeBtn = dialog.querySelector<HTMLButtonElement>('.pd-close')!;
+
+		let current: DialogProduct | null = null; // product shown right now
+		let opener: HTMLElement | null = null; // card that opened the dialog
+
+		// Keep quantity a whole number from 1 to 99; disable −/+ at the limits.
+		function setQty(n: number) {
+			const value = Number.isFinite(n) ? Math.min(MAX_QTY, Math.max(MIN_QTY, Math.round(n))) : MIN_QTY;
+			qty.value = String(value);
+			minus.disabled = value <= MIN_QTY;
+			plus.disabled = value >= MAX_QTY;
+			return value;
+		}
+
+		// Put one product's data into the dialog.
+		function fill(p: DialogProduct) {
+			name.textContent = p.name;
+			price.textContent = p.price;
+			description.textContent = p.description;
+
+			if (p.image) {
+				image.src = p.image;
+				image.alt = p.imageAlt;
+				image.hidden = false;
+				placeholder.hidden = true;
+			} else {
+				image.removeAttribute('src');
+				image.hidden = true;
+				placeholder.hidden = false;
+			}
+
+			details.replaceChildren(
+				...p.rows.flatMap((d) => {
+					const dt = document.createElement('dt');
+					dt.textContent = d.label;
+					const dd = document.createElement('dd');
+					dd.textContent = d.value;
+					return [dt, dd];
+				}),
+			);
+			details.hidden = p.rows.length === 0;
+
+			setQty(1);
+			status.textContent = '';
+		}
+
+		function open(p: DialogProduct, trigger: HTMLElement) {
+			current = p;
+			opener = trigger;
+			fill(p);
+			dialog!.showModal();
+			document.documentElement.style.overflow = 'hidden'; // stop the page behind from scrolling
+		}
+
+		// Open: any product card on the page.
+		document.querySelectorAll<HTMLButtonElement>('[data-product-id]').forEach((card) => {
+			card.addEventListener('click', () => {
+				const p = byId.get(card.dataset.productId ?? '');
+				if (p) open(p, card);
+			});
+		});
+
+		// Close: × button.
+		closeBtn.addEventListener('click', () => dialog.close());
+
+		// Close: click on the dimmed backdrop. Clicks there land on the <dialog>
+		// element itself (the panel's contents are its children). We also check where
+		// the press started, so selecting text and releasing outside doesn't close it.
+		let pressedOnBackdrop = false;
+		dialog.addEventListener('pointerdown', (e) => {
+			pressedOnBackdrop = e.target === dialog;
+		});
+		dialog.addEventListener('click', (e) => {
+			if (e.target === dialog && pressedOnBackdrop) dialog.close();
+		});
+
+		// Close: Escape is built into showModal(). Every way of closing fires "close".
+		dialog.addEventListener('close', () => {
+			document.documentElement.style.overflow = '';
+			opener?.focus(); // keyboard focus goes back to the card that opened it
+			opener = null;
+			current = null;
+		});
+
+		// Quantity controls.
+		minus.addEventListener('click', () => setQty(Number(qty.value) - 1));
+		plus.addEventListener('click', () => setQty(Number(qty.value) + 1));
+		qty.addEventListener('change', () => setQty(Number(qty.value)));
+
+		// Add to cart (button click or Enter in the quantity box).
+		form.addEventListener('submit', (e) => {
+			e.preventDefault();
+			if (!current) return;
+			const quantity = setQty(Number(qty.value));
+			addToCart(current.id, quantity);
+			status.textContent = `Added ${quantity} × ${current.name}`;
+		});
+	}
+</script>
+
+<style>
+	/* ---- The overlay panel ---- */
+	.product-dialog {
+		width: min(860px, calc(100vw - 2rem));
+		max-height: calc(100dvh - 2rem);
+		padding: 0; /* so every click inside lands on a child, not the dialog itself */
+		border: none;
+		border-radius: 14px;
+		background: #fffdf8;
+		color: #222;
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+		overflow: hidden; /* .pd-body does the scrolling */
+	}
+	.product-dialog[open] {
+		display: flex;
+		flex-direction: column;
+		animation: pd-in 0.22s ease-out;
+	}
+
+	/* The dimmed area behind the panel. */
+	.product-dialog::backdrop {
+		background: rgba(19, 32, 46, 0.55);
+	}
+	.product-dialog[open]::backdrop {
+		animation: pd-fade 0.22s ease-out;
+	}
+
+	@keyframes pd-in {
+		from {
+			opacity: 0;
+			transform: translateY(8px) scale(0.97);
+		}
+	}
+	@keyframes pd-fade {
+		from {
+			opacity: 0;
+		}
+	}
+
+	/* × in the top-right corner. Positioned on the dialog, so it stays put while content scrolls. */
+	.pd-close {
+		position: absolute;
+		top: 0.5rem;
+		right: 0.5rem;
+		z-index: 1;
+		width: 2.5rem;
+		height: 2.5rem;
+		border: none;
+		border-radius: 50%;
+		background: rgba(255, 253, 248, 0.9);
+		color: #13202e;
+		font-size: 1.75rem;
+		line-height: 1;
+		cursor: pointer;
+	}
+	.pd-close:hover {
+		background: #efe9dc;
+	}
+
+	/* Scrollable content: image on the left, info on the right (desktop). */
+	.pd-body {
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 2rem;
+		padding: 2rem;
+	}
+
+	.pd-media img,
+	.pd-placeholder {
+		display: block;
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		object-fit: contain;
+		border-radius: 8px;
+	}
+	.pd-placeholder {
+		display: grid;
+		place-items: center;
+		border: 2px dashed #c9c2b2;
+		color: #8a8273;
+	}
+	/* The `hidden` attribute must win over display: grid above. */
+	.pd-media [hidden] {
+		display: none;
+	}
+
+	.pd-info h2 {
+		margin: 0.25rem 2.5rem 0.25rem 0; /* room for the × */
+		font-size: 1.5rem;
+	}
+	.pd-price {
+		margin: 0 0 1rem;
+		font-size: 1.25rem;
+		font-weight: 600;
+	}
+	.pd-description {
+		margin: 0 0 1rem;
+		line-height: 1.6;
+	}
+
+	/* Rows as a two-column list: label, value. Long values (like the Details sentence)
+	   wrap inside the value column, so every line stays aligned with the other values. */
+	.pd-details {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		align-items: baseline; /* label lines up with the first line of its value */
+		gap: 0.4rem 1rem;
+		margin: 0 0 1.5rem;
+		font-size: 0.95rem;
+	}
+	.pd-details[hidden] {
+		display: none;
+	}
+	/* dt/dd are created by the script, so they need :global() to get these styles. */
+	.pd-details :global(dt) {
+		font-weight: 600;
+	}
+	.pd-details :global(dd) {
+		margin: 0;
+		color: #5a5347;
+		line-height: 1.5;
+	}
+
+	/* Quantity selector + Add to cart */
+	.pd-form {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1rem;
+	}
+	.pd-qty-label {
+		width: 100%;
+		font-weight: 600;
+		font-size: 0.95rem;
+	}
+	.pd-qty {
+		display: inline-flex;
+		align-items: stretch;
+		border: 2px solid #13202e;
+		border-radius: 999px;
+		overflow: hidden;
+	}
+	.pd-qty button {
+		width: 2.5rem;
+		border: none;
+		background: transparent;
+		color: #13202e;
+		font-size: 1.25rem;
+		cursor: pointer;
+	}
+	.pd-qty button:hover:not(:disabled) {
+		background: #efe9dc;
+	}
+	.pd-qty button:disabled {
+		opacity: 0.35;
+		cursor: not-allowed;
+	}
+	.pd-qty input {
+		width: 3.25rem;
+		border: none;
+		border-left: 1px solid #c9c2b2;
+		border-right: 1px solid #c9c2b2;
+		background: #fff;
+		font: inherit;
+		text-align: center;
+		appearance: textfield; /* hide the browser's own up/down arrows */
+		-moz-appearance: textfield;
+	}
+	.pd-qty input::-webkit-inner-spin-button,
+	.pd-qty input::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+	.pd-add {
+		font: inherit;
+		font-weight: 600;
+		padding: 0.6rem 1.5rem;
+		border: 2px solid #13202e;
+		border-radius: 999px;
+		background: #13202e;
+		color: #fffdf8;
+		cursor: pointer;
+	}
+	.pd-add:hover {
+		background: #24384d;
+	}
+
+	.pd-status {
+		min-height: 1.5em; /* reserve space so the layout doesn't jump */
+		margin: 1rem 0 0;
+		font-weight: 600;
+		color: #2f6b3a;
+	}
+
+	/* Visible keyboard focus on everything clickable inside. */
+	.product-dialog button:focus-visible,
+	.product-dialog input:focus-visible {
+		outline: 3px solid #13202e;
+		outline-offset: 2px;
+	}
+
+	/* ---- Phones: nearly full screen, stacked, content scrolls ---- */
+	@media (max-width: 640px) {
+		.product-dialog {
+			width: calc(100vw - 1rem);
+			max-height: calc(100dvh - 1rem);
+			border-radius: 12px;
+		}
+		.pd-body {
+			grid-template-columns: 1fr;
+			gap: 1.25rem;
+			padding: 3.25rem 1.25rem 1.5rem; /* top room for the × */
+		}
+	}
+
+	/* No fade/scale for visitors who turn animation off. */
+	@media (prefers-reduced-motion: reduce) {
+		.product-dialog[open],
+		.product-dialog[open]::backdrop {
+			animation: none;
+		}
+	}
+</style>

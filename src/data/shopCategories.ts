@@ -11,18 +11,26 @@ export interface ShopCategory {
 	title: string;
 	/** A short description shown at the top of the category page. */
 	description: string;
+	/** Default sentence for the "Details" row in the product overlay, for every
+	 *  product in this category. A product's own `details` replaces it. Optional. */
+	details?: string;
 }
+
+const notecardDetails =
+	'Single sheet notecard with colorbrite envelope wrapped in cellophane sleeve.';
 
 export const shopCategories: ShopCategory[] = [
 	{
 		slug: '3x8-notecards',
 		title: '3x8 Notecards',
 		description: '[Placeholder description of the 3x8 notecards.]',
+		details: notecardDetails,
 	},
 	{
 		slug: '4x6-notecards',
 		title: '4x6 Notecards',
 		description: '[Placeholder description of the 4x6 notecards.]',
+		details: notecardDetails,
 	},
 	{
 		slug: 'soul-support',
