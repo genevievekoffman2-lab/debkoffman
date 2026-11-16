@@ -227,3 +227,117 @@ A running log of what was built and why. Newest at the bottom.
   starting at the top.
 - Below 900px wide they stack: text first, then the image (up to 480px, centered).
   The breakpoint is wider than the intro's 700px because these two columns need more room.
+
+---
+
+## Step 9 — Door images on Her Art cards (2026-11-16)
+
+- Copied `public/images/her-art/series-door.png` and `installations-door.png` →
+  `src/assets/images/her-art/`.
+- `src/pages/art.astro`: imports both and passes them to the cards as
+  `image={seriesDoor}` / `image={installationsDoor}`, replacing the placeholders.
+  `LinkCard` serves each as an 800px-wide WebP instead of the 2 MB, 2048px PNG.
+- The doors are square, and the card's image box is 4:3, so a little white space is
+  trimmed from the top and bottom. The doors themselves fit inside.
+- Alt text is empty on purpose. The card title already names the link, so describing
+  the door would make screen readers say it twice.
+
+---
+
+## Step 10 — Swinging-door links on Her Art (2026-11-16)
+
+- `src/components/LinkCard.astro`: new `variant="door"` option. The default `card`
+  look is unchanged, for use elsewhere later.
+  - No background, border, rounded corners, shadow, or padding: just the image, then
+    the title and description.
+  - The image keeps its natural shape (`height: auto`, `aspect-ratio: auto`, no cover crop),
+    up to 420px wide.
+  - On hover or keyboard focus the image swings open:
+    `transform: perspective(900px) rotateY(-24deg)` with `transform-origin: 26% 50%`,
+    the hinge line in Deb's drawings.
+  - Opening takes 0.35s, ease-out. Closing takes 0.7s with a springy curve that
+    overshoots slightly, so the door settles back.
+  - Keyboard focus shows a 3px dark outline around the link.
+  - With reduced motion turned on, there is no swing at all.
+- `src/pages/art.astro`: both cards use `variant="door"`.
+
+**Terms**
+- **`perspective()`**: how far away the viewer is from a 3D-transformed element. A
+  smaller number means more dramatic depth.
+- **`rotateY()`**: turns an element around its vertical axis, like a door on its hinges.
+- **`transform-origin`**: the point an element rotates around.
+- **`cubic-bezier(...)`**: a custom speed curve for an animation. Values above 1
+  make it overshoot and come back, which gives a springy feel.
+- **`class:list`**: Astro's way to add classes conditionally, here `link-card--door`
+  only when `variant="door"`.
+
+---
+
+## Step 11 — Series: data file + dynamic routes (2026-11-16)
+
+**What**
+- `src/data/series.ts` (new): exports the `Series` type and the `series` list:
+  Headstones, Food for the Soul, Wheel, Sitting Buddhas, One Way or Another,
+  Love Your Body, Just a Moment.
+  - Each entry has a `slug`, `title` and `description`, plus an optional
+    `image` / `imageAlt`.
+  - **To add a series, add an entry to this list.** The grid card and its page appear automatically.
+- `src/pages/art/series.astro` (rewritten): a grid of cards built from `series.ts`.
+  - Each card is a square dashed placeholder labeled with the title, or the real
+    image via `<Image />` if `image` is set, with the title below.
+  - On hover the image lifts slightly with a soft shadow.
+  - The grid is 3 columns, then 2 below 900px, then 1 below 560px.
+  - Each card links to `/art/series/<slug>`, and the "← Back to Her Art" link is kept.
+- `src/pages/art/series/[slug].astro` (new): one page per series, with the title,
+  description, a "[Pieces in this series go here]" area, and "← Back to Series".
+
+**Adding a series image later**
+1. Put the file in `src/assets/images/series/`.
+2. Import it at the top of `series.ts`.
+3. Set `image: thatImport` on the entry.
+
+**Terms**
+- **Dynamic route**: a page file with `[brackets]` in its name. One template makes
+  many pages, and the bracketed part of the URL fills the placeholder.
+- **`getStaticPaths()`**: on a static site, the function a dynamic route exports to
+  list every page to build, giving each one `params` (the URL value) and `props` (its data).
+- **Static site**: every page is built into an HTML file ahead of time, before anyone visits.
+- **Slug**: the URL-friendly id of a page: lowercase, with dashes instead of spaces.
+- **`interface`** (TypeScript): a description of an object's shape. Your editor
+  warns you if an entry is missing a field or has a typo.
+- **`satisfies`** (TypeScript): checks that a value matches a type without changing it.
+
+---
+
+## Step 12 — Installations & Booths: data file + dynamic routes, shared CardGrid (2026-11-16)
+
+**What**
+- `src/components/CardGrid.astro` (new): the card grid that used to be written
+  inside `series.astro`, moved into a component.
+  - Usage: `<CardGrid items={...} baseUrl="/art/..." />`. Each card links to `baseUrl/slug`.
+  - Classes were renamed from `series-*` to `card-*`. The markup and CSS are otherwise
+    the same. I compared the Series page HTML before and after, and only the class names changed.
+- `src/pages/art/series.astro`: now just a heading, `<CardGrid items={series} baseUrl="/art/series" />`,
+  and the back link.
+- `src/data/installations.ts` (new): the `Installation` type and `installations` list.
+  Same fields as Series, plus `kind: 'booth' | 'installation' | 'event'`.
+- `src/pages/art/installations.astro` (rewritten): uses `CardGrid` with the installations list.
+- `src/pages/art/installations/[slug].astro` (new): one page per entry, with the title,
+  description, "[Photos go here]", "[Video goes here]" (16:9) and a back link.
+
+**Why**
+- One grid component means Series and Installations always look the same. A style
+  change made in `CardGrid.astro` applies to both pages.
+- `CardGrid` needs only `slug`, `title`, `image` and `imageAlt` (its `CardItem` type).
+  Any list with those fields works, so extra fields like `description` and `kind`
+  don't get in the way.
+- `kind` isn't shown on the site yet. It's there for later, e.g. a "Booth" label or a filter.
+
+**Slugs**
+- I left the word "installation" out of two slugs to keep their URLs shorter:
+  `signs-of-well-being` and `make-room-for-all-you-need`. Their titles still say "Installation".
+
+**Terms**
+- **Union type** (`'booth' | 'installation' | 'event'`): a value that must be one of
+  these exact strings. Your editor flags a typo like `'boothe'`.
+- **Refactor**: changing how code is organized without changing what it does.

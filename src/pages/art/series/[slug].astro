@@ -1,0 +1,59 @@
+---
+// art/series/[slug].astro → one page per series, e.g. "/art/series/headstones"
+//
+// [slug] in the filename is a placeholder. getStaticPaths() below tells Astro
+// every value it can take, so Astro builds one page for each entry in series.ts.
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { series, type Series } from '../../../data/series';
+
+export const getStaticPaths = (() => {
+	return series.map((s) => ({
+		params: { slug: s.slug }, // fills in [slug] in the URL
+		props: { series: s }, // the data this page receives
+	}));
+}) satisfies GetStaticPaths;
+
+interface Props {
+	series: Series;
+}
+
+const { series: s } = Astro.props;
+---
+
+<BaseLayout title={s.title}>
+	<article class="series-page">
+		<h1>{s.title}</h1>
+		<p class="description">{s.description}</p>
+
+		<div class="placeholder pieces">[Pieces in this series go here]</div>
+
+		<a class="back-link" href="/art/series">← Back to Series</a>
+	</article>
+</BaseLayout>
+
+<style>
+	.series-page {
+		max-width: 1000px;
+		margin: 0 auto 3rem;
+		text-align: center;
+	}
+	h1 {
+		margin: 1rem 0 0.5rem;
+	}
+	.description {
+		max-width: 65ch;
+		margin: 0 auto 2rem;
+		font-size: 1.125rem;
+	}
+	.pieces {
+		min-height: 300px;
+		display: grid;
+		place-items: center;
+		color: #8a8273;
+	}
+	.back-link {
+		color: inherit;
+		font-weight: 600;
+	}
+</style>

@@ -2,23 +2,22 @@
 // art.astro → the Her Art page, served at "/art"
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LinkCard from '../components/LinkCard.astro';
+import seriesDoor from '../assets/images/her-art/series-door.png';
+import installationsDoor from '../assets/images/her-art/installations-door.png';
 ---
 
-<BaseLayout title="Her Art">
-	<h1 class="page-title">Her Art</h1>
+<BaseLayout title="Her Art"> 
 
 	<div class="art-cards">
 		<LinkCard
-			href="/art/series"
-			title="Series"
-			description="[A short line about Deb's cartoon series]"
-			placeholder="[Series image]"
+			href="/art/series" 
+			image={seriesDoor}
+			variant="door"
 		/>
 		<LinkCard
-			href="/art/installations"
-			title="Installations & Booths"
-			description="[A short line about Deb's installations and booths]"
-			placeholder="[Installations image]"
+			href="/art/installations" 
+			image={installationsDoor}
+			variant="door"
 		/>
 	</div>
 </BaseLayout>

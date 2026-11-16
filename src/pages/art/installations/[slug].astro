@@ -1,0 +1,67 @@
+---
+// art/installations/[slug].astro → one page per installation, e.g. "/art/installations/complaint-booth"
+//
+// getStaticPaths() builds one page for each entry in installations.ts.
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { installations, type Installation } from '../../../data/installations';
+
+export const getStaticPaths = (() => {
+	return installations.map((item) => ({
+		params: { slug: item.slug }, // fills in [slug] in the URL
+		props: { installation: item }, // the data this page receives
+	}));
+}) satisfies GetStaticPaths;
+
+interface Props {
+	installation: Installation;
+}
+
+const { installation: item } = Astro.props;
+---
+
+<BaseLayout title={item.title}>
+	<article class="installation-page">
+		<h1>{item.title}</h1>
+		<p class="description">{item.description}</p>
+
+		<div class="placeholder media">[Photos go here]</div>
+		<div class="placeholder media video">[Video goes here]</div>
+
+		<a class="back-link" href="/art/installations">← Back to Installations &amp; Booths</a>
+	</article>
+</BaseLayout>
+
+<style>
+	.installation-page {
+		max-width: 1000px;
+		margin: 0 auto 3rem;
+		text-align: center;
+	}
+	h1 {
+		margin: 1rem 0 0.5rem;
+	}
+	.description {
+		max-width: 65ch;
+		margin: 0 auto 2rem;
+		font-size: 1.125rem;
+	}
+	.media {
+		min-height: 300px;
+		display: grid;
+		place-items: center;
+		color: #8a8273;
+	}
+	/* Video area: widescreen 16:9 shape, the usual shape for video. */
+	.video {
+		min-height: 0;
+		aspect-ratio: 16 / 9;
+		max-width: 800px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.back-link {
+		color: inherit;
+		font-weight: 600;
+	}
+</style>

@@ -1,17 +1,30 @@
 ---
 // art/installations.astro → the Installations & Booths page, served at "/art/installations"
+// Shows one card per entry in src/data/installations.ts.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import { installations } from '../../data/installations';
 ---
 
 <BaseLayout title="Installations & Booths">
-	<section class="placeholder">
-		<h1>Installations &amp; Booths</h1>
-		<p>[Deb's installations and booths go here]</p>
+	<h1 class="page-title">Installations &amp; Booths</h1>
+
+	<CardGrid items={installations} baseUrl="/art/installations" />
+
+	<p class="back">
 		<a class="back-link" href="/art">← Back to Her Art</a>
-	</section>
+	</p>
 </BaseLayout>
 
 <style>
+	.page-title {
+		text-align: center;
+		margin: 1rem 0 2rem;
+	}
+	.back {
+		text-align: center;
+		margin: 3rem 0;
+	}
 	.back-link {
 		color: inherit;
 		font-weight: 600;

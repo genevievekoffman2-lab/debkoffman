@@ -1,17 +1,30 @@
 ---
 // art/series.astro → the Series page, served at "/art/series"
+// Shows one card per entry in src/data/series.ts.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import { series } from '../../data/series';
 ---
 
 <BaseLayout title="Series">
-	<section class="placeholder">
-		<h1>Series</h1>
-		<p>[Deb's cartoon series go here]</p>
+	<h1 class="page-title">Series</h1>
+
+	<CardGrid items={series} baseUrl="/art/series" />
+
+	<p class="back">
 		<a class="back-link" href="/art">← Back to Her Art</a>
-	</section>
+	</p>
 </BaseLayout>
 
 <style>
+	.page-title {
+		text-align: center;
+		margin: 1rem 0 2rem;
+	}
+	.back {
+		text-align: center;
+		margin: 3rem 0;
+	}
 	.back-link {
 		color: inherit;
 		font-weight: 600;

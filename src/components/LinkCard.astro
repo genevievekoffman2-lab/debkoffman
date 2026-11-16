@@ -8,6 +8,9 @@
 // Later:      import seriesImg from '../assets/images/series-cover.jpg';
 //             <LinkCard href="/art/series" title="Series" image={seriesImg} imageAlt="..." />
 //             → the real image, optimized by <Image />, in the same 4:3 box
+//
+// variant="door": no card box at all. Just the image at its natural shape with the
+// title below, and the image swings open like a door on hover.
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
@@ -18,13 +21,21 @@ interface Props {
 	image?: ImageMetadata; // an image imported from src/assets/images/
 	imageAlt?: string;
 	placeholder?: string; // label shown in the dashed box until there's a real image
+	variant?: 'card' | 'door';
 }
 
-const { href, title, description, image, imageAlt = '', placeholder = '[Image goes here]' } =
-	Astro.props;
+const {
+	href,
+	title,
+	description,
+	image,
+	imageAlt = '',
+	placeholder = '[Image goes here]',
+	variant = 'card',
+} = Astro.props;
 ---
 
-<a class="link-card" href={href}>
+<a class:list={['link-card', { 'link-card--door': variant === 'door' }]} href={href}>
 	{
 		image ? (
 			<Image src={image} alt={imageAlt} width={800} class="card-image" />
@@ -98,6 +109,67 @@ const { href, title, description, image, imageAlt = '', placeholder = '[Image go
 		.link-card:hover,
 		.link-card:focus-visible {
 			transform: none;
+		}
+	}
+
+	/* ===== variant="door" =====
+	   Undo the card look: just the image, then the title. */
+	.link-card--door {
+		background: none;
+		border: none;
+		border-radius: 0;
+		overflow: visible; /* let the door swing past its own edges */
+		align-items: center;
+	}
+	/* Hover/focus on the link itself no longer lifts or shadows; the door swings instead. */
+	.link-card--door:hover,
+	.link-card--door:focus-visible {
+		transform: none;
+		box-shadow: none;
+	}
+	/* Keyboard focus: a clear outline around the whole link. */
+	.link-card--door:focus-visible {
+		outline: 3px solid #13202e;
+		outline-offset: 6px;
+		border-radius: 4px;
+	}
+
+	/* The image at its natural proportions: no fixed box, no cropping. */
+	.link-card--door .card-image {
+		width: 100%;
+		max-width: 420px;
+		height: auto;
+		aspect-ratio: auto;
+		object-fit: fill;
+
+		/* The swing.
+		   - perspective(900px): how far the "camera" is. It gives the turn real 3D depth.
+		   - rotateY(0deg): resting, closed.
+		   - transform-origin: the hinge. The hinges in Deb's drawings sit about 26% in
+		     from the left edge of the image, so the door pivots there. */
+		transform: perspective(900px) rotateY(0deg);
+		transform-origin: 26% 50%;
+		/* Closing: a springy curve that overshoots slightly, so the door settles back. */
+		transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+	.link-card--door:hover .card-image,
+	.link-card--door:focus-visible .card-image {
+		transform: perspective(900px) rotateY(-24deg);
+		/* Opening: quick and smooth. */
+		transition: transform 0.35s ease-out;
+	}
+
+	.link-card--door .card-body {
+		padding: 0.75rem 0 0;
+	}
+
+	/* No swing for visitors who turn animation off; the title underline still shows hover. */
+	@media (prefers-reduced-motion: reduce) {
+		.link-card--door .card-image,
+		.link-card--door:hover .card-image,
+		.link-card--door:focus-visible .card-image {
+			transform: none;
+			transition: none;
 		}
 	}
 </style>
