@@ -1,0 +1,87 @@
+---
+// ShopNav.astro
+// The Shop's sub-navigation: one tab per category from src/data/shopCategories.ts.
+//
+// Usage (inside a page that uses BaseLayout):
+//   <ShopNav slot="subnav" />                       → no tab marked (the /shop landing page)
+//   <ShopNav slot="subnav" current="books" />       → the Books tab marked as current
+//
+// slot="subnav" places it directly under the main top bar (see BaseLayout.astro).
+import { shopCategories } from '../data/shopCategories';
+
+interface Props {
+	current?: string; // slug of the category being viewed
+}
+
+const { current } = Astro.props;
+---
+
+<nav class="shop-nav" aria-label="Shop categories">
+	<ul>
+		{
+			shopCategories.map((c) => (
+				<li>
+					<a href={`/shop/${c.slug}`} aria-current={c.slug === current ? 'page' : undefined}>
+						{c.title}
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</nav>
+
+<style>
+	.shop-nav {
+		background: #f4efe4; /* a soft band, a shade darker than the page */
+		border-bottom: 1px solid #e5e0d5;
+	}
+
+	/* One row of tabs. If they don't fit (phones), the row scrolls sideways
+	   instead of overflowing the page. */
+	.shop-nav ul {
+		display: flex;
+		justify-content: center;
+		gap: 0.5rem;
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 0.6rem 1rem;
+		list-style: none;
+		overflow-x: auto;
+		scrollbar-width: thin;
+		-webkit-overflow-scrolling: touch;
+	}
+	.shop-nav li {
+		flex: 0 0 auto; /* tabs keep their width; they never squish */
+	}
+
+	.shop-nav a {
+		display: block;
+		padding: 0.4rem 0.9rem;
+		border-radius: 999px; /* pill-shaped tabs */
+		color: #13202e;
+		font-weight: 600;
+		text-decoration: none;
+		white-space: nowrap; /* "3x8 Notecards" stays on one line */
+	}
+	.shop-nav a:hover {
+		background: rgba(19, 32, 46, 0.08);
+	}
+	.shop-nav a:focus-visible {
+		outline: 3px solid #13202e;
+		outline-offset: 2px;
+	}
+
+	/* Current category: a filled tab. */
+	.shop-nav a[aria-current='page'] {
+		background: #13202e;
+		color: #fffdf8;
+	}
+
+	/* When the row scrolls (narrow screens), start at the left edge so the first
+	   tab isn't cut off by the centering. */
+	@media (max-width: 640px) {
+		.shop-nav ul {
+			justify-content: flex-start;
+		}
+	}
+</style>

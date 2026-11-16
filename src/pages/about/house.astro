@@ -2,17 +2,40 @@
 // about/house.astro → the Deb's House page, served at "/about/house"
 // (a file inside a folder in src/pages/ gets that folder's name in its URL)
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import houseTulips from '../../assets/images/about/house-tulips.jpg';
 ---
 
 <BaseLayout title="Deb's House">
 	<section class="placeholder">
 		<h1>Deb's House</h1>
-		<div class="image-placeholder">[Image goes here]</div>
+		<p>
+			I love tulips, so do the deer.  I can pretend though…
+		</p>
+		<Image
+			src={houseTulips}
+			alt="Deb's white house with a red roof and front porch, with her hand-drawn pink tulips along the front"
+			width={720}
+			class="house-photo"
+		/>
+		<p>
+			My dear sweet kitties…Shoobie and Izzy
+			[insert cat image here]
+		</p>
 		<a class="back-link" href="/about">← Back to About Deb</a>
 	</section>
 </BaseLayout>
 
 <style>
+	/* The house photo at its natural proportions, centered, rounded corners. */
+	.house-photo {
+		display: block;
+		width: 100%;
+		max-width: 720px;
+		height: auto;
+		margin: 0 auto 1.5rem;
+		border-radius: 10px;
+	}
 	.back-link {
 		color: inherit;
 		font-weight: 600;

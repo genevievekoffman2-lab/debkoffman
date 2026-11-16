@@ -1,12 +1,29 @@
 ---
-// shop.astro → the Shop page, served at "/shop"
+// shop.astro → the Shop landing page, served at "/shop"
+// No products here: visitors pick a collection from the bar first.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ShopNav from '../components/ShopNav.astro';
 ---
 
 <BaseLayout title="Shop">
-	<section class="placeholder">
+	<ShopNav slot="subnav" />
+
+	<section class="shop-landing">
 		<h1>Shop</h1>
-		<p>[Notecards, Soul Support, books, and prints go here]</p>
-		<div class="image-placeholder">[Image goes here]</div>
+		<p>Choose a collection to browse.</p>
 	</section>
 </BaseLayout>
+
+<style>
+	.shop-landing {
+		text-align: center;
+		padding: 3rem 0 4rem;
+	}
+	.shop-landing h1 {
+		margin: 0 0 0.5rem;
+	}
+	.shop-landing p {
+		font-size: 1.125rem;
+		color: #5a5347;
+	}
+</style>

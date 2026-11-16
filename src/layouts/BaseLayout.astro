@@ -82,6 +82,10 @@ const isCurrent = (href: string) =>
 			</nav>
 		</header>
 
+		<!-- Optional bar directly under the top bar (e.g. the Shop's category tabs).
+		     A page fills it with: <Something slot="subnav" /> -->
+		<slot name="subnav" />
+
 		<main>
 			<slot />
 		</main>

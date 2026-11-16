@@ -341,3 +341,54 @@ A running log of what was built and why. Newest at the bottom.
 - **Union type** (`'booth' | 'installation' | 'event'`): a value that must be one of
   these exact strings. Your editor flags a typo like `'boothe'`.
 - **Refactor**: changing how code is organized without changing what it does.
+
+---
+
+## Step 13 — Shop outline with category sub-navigation (2026-11-16)
+
+**What**
+- `src/data/shopCategories.ts` (new): the `ShopCategory` type and 5 categories:
+  3x8 Notecards, 4x6 Notecards, Soul Support, Books, Prints.
+- `src/components/ShopNav.astro` (new): a bar of pill-shaped tabs, one per category,
+  each linking to `/shop/<slug>`.
+  - `current="<slug>"` marks that tab with `aria-current="page"` and a dark filled pill.
+  - On narrow screens the row scrolls sideways inside the bar. Tabs never squish
+    or push the page wider.
+- `BaseLayout.astro`: added `<slot name="subnav" />` between the header and `<main>`,
+  so a page can put a bar directly under the top bar without `<main>`'s padding.
+- `src/pages/shop.astro` (rewritten): ShopNav with no tab marked, then "Choose a
+  collection to browse." No products.
+- `src/pages/shop/[slug].astro` (new): one page per category. It has ShopNav with
+  this category marked, the title and description, and a 3/2/1-column grid of 6
+  placeholder products (image box, "[Product name]", "[Price]", and a disabled
+  "Add to cart" button).
+- The main top bar needed no change. Its nested-path check already marks "Shop"
+  on every `/shop/...` page.
+
+**Terms**
+- **Named slot**: a second, named spot in a layout where a page can insert content.
+  The page uses `slot="subnav"` on an element to send it there instead of the default `<slot />`.
+- **Sub-navigation**: a second row of links for moving within one section.
+- **`overflow-x: auto`**: if the content is wider than its box, the box scrolls
+  sideways instead of spilling out.
+- **`disabled`** (on a button): the button can't be clicked or focused. It's used
+  here until a real cart exists.
+
+---
+
+## Step 14 — House photo on About Deb (2026-11-16)
+
+- Copied `public/images/about/house-tulips.jpg` → `src/assets/images/about/house-tulips.jpg`.
+- `src/pages/about.astro`: the "Come see Deb's house →" card now shows the photo
+  (`<Image src={houseTulips} width={600} class="house-photo" />`) instead of the
+  "[Photo of Deb's house]" placeholder. It's shown uncropped at its natural proportions
+  (720×570), full card width, with rounded corners. The card's existing hover lift is unchanged.
+
+---
+
+## Step 15 — House photo on /about/house (2026-11-16)
+
+- `src/pages/about/house.astro`: replaced the "[Image goes here]" placeholder with
+  `<Image src={houseTulips} width={720} class="house-photo" />`, the same
+  `src/assets/images/about/house-tulips.jpg` used on About Deb. It's shown at full size
+  (720px max), centered, uncropped, with rounded corners.

@@ -5,6 +5,7 @@ import IconDivider from '../components/IconDivider.astro';
 import feet from '../assets/images/icons/feet1.png';
 import { Image } from 'astro:assets';
 import blessings from '../assets/images/about/mailchimp-blessings.png';
+import houseTulips from '../assets/images/about/house-tulips.jpg';
 ---
 
 <BaseLayout title="About Deb">
@@ -69,7 +70,12 @@ import blessings from '../assets/images/about/mailchimp-blessings.png';
 
 		<!-- 11. Link to Deb's House: the whole card is one link -->
 		<a class="house-link" href="/about/house">
-			<div class="image-placeholder house-photo">[Photo of Deb's house]</div>
+			<Image
+				src={houseTulips}
+				alt="Deb's white house with a red roof and front porch, with her hand-drawn pink tulips along the front"
+				width={600}
+				class="house-photo"
+			/>
 			<span class="house-link-text">Come see Deb's house →</span>
 		</a>
 	</article>
@@ -163,7 +169,12 @@ import blessings from '../assets/images/about/mailchimp-blessings.png';
 			transform 0.2s ease,
 			box-shadow 0.2s ease;
 	}
+	/* The house photo at its natural proportions, full width of the card, rounded corners. */
 	.house-photo {
+		display: block;
+		width: 100%;
+		height: auto;
+		border-radius: 10px;
 		margin-bottom: 0.75rem;
 	}
 	.house-link-text {
