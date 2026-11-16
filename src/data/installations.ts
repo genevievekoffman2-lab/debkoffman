@@ -24,6 +24,9 @@ import complaintMartyImg from '../assets/images/her-art/booths/complaint-marty-8
 import type { ImageMetadata } from 'astro';
 import ComplaintBoothImg from '../assets/images/her-art/booths/complaint-t.jpg';
 import SingYourHeartOutImg from '../assets/images/her-art/booths/sing-800.jpg';
+import SingYourHeartOut_MartyImg from '../assets/images/her-art/booths/sing-mart-800.jpg';
+
+
 /** One photo in an entry's gallery. */
 export interface InstallationPhoto {
 	/** The imported image. */
@@ -68,6 +71,12 @@ export const installations: Installation[] = [
 		image: SingYourHeartOutImg,
 		imageAlt: 'Debs Sing Your Heart out Booth',
 		description: 'Everybody needs a safe place to just sing their heart out….I made this out of a recycled refrigerator box and acrylic paint.  I displayed booth in gallery, people had fun singing from the inside and out.',
+		photos: [
+			{
+				src: SingYourHeartOut_MartyImg,
+				alt: 'Sing your heart out Booth with Marty',
+			}, 
+		],
 	},
 	{
 		slug: 'signs-of-well-being',
