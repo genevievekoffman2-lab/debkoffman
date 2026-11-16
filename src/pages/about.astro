@@ -6,6 +6,7 @@ import feet from '../assets/images/icons/feet1.png';
 import { Image } from 'astro:assets';
 import blessings from '../assets/images/about/mailchimp-blessings.png';
 import houseTulips from '../assets/images/about/house-tulips.jpg';
+import debPhoto from '../assets/images/about/aunt_deb_img.png';
 ---
 
 <BaseLayout title="About Deb">
@@ -14,7 +15,12 @@ import houseTulips from '../assets/images/about/house-tulips.jpg';
 
 		<!-- 1. Intro: photo + opening paragraph, side by side on desktop -->
 		<section class="intro">
-			<div class="image-placeholder intro-photo">[Photo of Deb 1]</div>
+			<Image
+				src={debPhoto}
+				alt="Deb Koffman smiling, wearing a dark sweater and a striped scarf"
+				width={580}
+				class="intro-photo"
+			/>
 			<div class="intro-text">
 				<p>
 					I make art (stories, poems, cartoons, installations, card decks) to understand, reflect and honor my emotions and thinking patterns. I write stories about choice, poems that give me advice, cartoons that remind me what really matters to my heart and soul.
@@ -117,7 +123,10 @@ import houseTulips from '../assets/images/about/house-tulips.jpg';
 		margin: 0 auto;
 	}
 	.intro-photo {
-		margin: 0; /* overrides the global auto-centering; the grid places it */
+		display: block;
+		width: 100%;
+		height: auto;
+		border-radius: 8px;
 	}
 
 	/* 5. Pull quote: bigger, centered, framed by thin rules so it stands out. */

@@ -473,3 +473,25 @@ A running log of what was built and why. Newest at the bottom.
   (`undefined`/`null`), then use `b`".
 - **`?.` (optional chaining)**: `category?.details` means "`category.details`, or
   `undefined` if there's no category", instead of crashing.
+
+## Step 18: Pink shop category bar
+- **File:** `src/components/ShopNav.astro`
+- The category bar's background changed from beige (`#f4efe4`) to pink, **`#ED9BA3`**. Its bottom border is now a slightly deeper pink (`#d9848d`), so the edge still shows.
+- Unchanged: dark tab text, the dark filled pill on the current tab, and the hover tint. Dark text on this pink stays easy to read.
+
+## Step 19: Real photo of Deb on the About page
+- **File:** `src/pages/about.astro`
+- The "[Photo of Deb 1]" placeholder was replaced by `src/assets/images/about/aunt_deb_img.png`, a 580 × 385 photo of Deb smiling.
+- It's shown with Astro's `<Image />`, which makes an optimized copy at build time. The alt text describes the photo for screen readers.
+- `.intro-photo` now makes the photo fill its column, keep its proportions, and get softly rounded corners. On phones it still stacks above the text.
+
+## Step 20: Photo galleries for installations & booths
+- **Files:** `src/data/installations.ts`, `src/pages/art/installations/[slug].astro`
+- New optional field on each entry, **`photos`**: a list of `{ src, alt, caption? }` (the new `InstallationPhoto` type).
+  - `src`: an image imported at the top of `installations.ts`
+  - `alt`: a description for screen readers
+  - `caption`: optional text shown under the photo
+- The detail page shows the photos as a gallery: 2 columns on desktop, 1 on phones (≤600px). Each photo keeps its own shape. If an entry has no `photos`, the "[Photos go here]" placeholder still shows.
+- `<Image widths={[400, 800]} sizes=...>` makes two sizes of each photo. The browser downloads the one that fits the screen (**`srcset`**).
+- The Complaint Booth now has 2 photos: `complaint-t.jpg` (the booth) and `complaint-marty-800.jpg` (someone complaining into it). Both are in `src/assets/images/her-art/booths/`.
+- The how-to comment at the top of `installations.ts` was updated to explain cover images vs. gallery photos and to name the real folder.

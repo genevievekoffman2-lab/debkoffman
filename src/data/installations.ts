@@ -4,12 +4,35 @@
 //   - one page per entry at /art/installations/<slug>
 // To add one, add an entry here. The order here is the order on the site.
 //
-// To add an image later:
-//   1. put the file in src/assets/images/installations/, e.g. complaint-booth.jpg
-//   2. import it at the top:  import complaintImg from '../assets/images/installations/complaint-booth.jpg';
-//   3. set it on the entry:   image: complaintImg,
+// Images live in src/assets/images/her-art/booths/ (any folder under src/assets/ works).
+//
+// COVER IMAGE (the card on the grid page):
+//   1. put the file in the folder, e.g. complaint-t.jpg
+//   2. import it at the top:  import ComplaintBoothImg from '../assets/images/her-art/booths/complaint-t.jpg';
+import complaintMartyImg from '../assets/images/her-art/booths/complaint-marty-800.jpg';
+//   3. set it on the entry:   image: ComplaintBoothImg, imageAlt: '...',
+//
+// GALLERY PHOTOS (shown on the entry's own page, in this order):
+//   1. put the file in the folder and import it at the top, as above
+//   2. add it to the entry's `photos` list:
+//        photos: [
+//          { src: ComplaintBoothImg, alt: 'What the photo shows' },
+//          { src: complaintMartyImg, alt: '...', caption: 'Optional text under the photo' },
+//        ],
+//   The cover image isn't added to the gallery automatically; list it in `photos` too if you want it there.
 
 import type { ImageMetadata } from 'astro';
+import ComplaintBoothImg from '../assets/images/her-art/booths/complaint-t.jpg';
+import SingYourHeartOutImg from '../assets/images/her-art/booths/sing-800.jpg';
+/** One photo in an entry's gallery. */
+export interface InstallationPhoto {
+	/** The imported image. */
+	src: ImageMetadata;
+	/** Describes the photo for screen readers. */
+	alt: string;
+	/** Optional text shown under the photo. */
+	caption?: string;
+}
 
 /** What kind of piece this is. */
 export type InstallationKind = 'booth' | 'installation' | 'event';
@@ -27,6 +50,8 @@ export interface Installation {
 	image?: ImageMetadata;
 	/** Describes the image for screen readers. Leave empty if the title says it all. */
 	imageAlt?: string;
+	/** Photos shown on the entry's own page. Optional; without it the page shows a placeholder. */
+	photos?: InstallationPhoto[];
 }
 
 export const installations: Installation[] = [
@@ -40,7 +65,9 @@ export const installations: Installation[] = [
 		slug: 'sing-your-heart-out-booth',
 		title: 'Sing Your Heart Out Booth',
 		kind: 'booth',
-		description: '[Placeholder description of the Sing Your Heart Out Booth.]',
+		image: SingYourHeartOutImg,
+		imageAlt: 'Debs Sing Your Heart out Booth',
+		description: 'Everybody needs a safe place to just sing their heart out….I made this out of a recycled refrigerator box and acrylic paint.  I displayed booth in gallery, people had fun singing from the inside and out.',
 	},
 	{
 		slug: 'signs-of-well-being',
@@ -58,7 +85,19 @@ export const installations: Installation[] = [
 		slug: 'complaint-booth',
 		title: 'Complaint Booth',
 		kind: 'booth',
-		description: '[Placeholder description of the Complaint Booth.]',
+		description: 'I think it’s so important to have a safe place to complain. Something miraculous happens when I complain consciously…I discover what I really need.  Then I can ask for it.  This is my brother Marty(who never complains! trying out the complaint booth).  Made from a recycled refrigerator box and acrylic paint.',
+		image: ComplaintBoothImg,
+		imageAlt: 'Debs Complaint Booth',
+		photos: [
+			{
+				src: ComplaintBoothImg,
+				alt: 'The Complaint Booth: a tall painted booth reading "Voice your complaints here. No limit to how much you can complain," with a side panel offering a free "Master Complainer" T-shirt if you complain enough.',
+			},
+			{
+				src: complaintMartyImg,
+				alt: 'A man leans into the Complaint Booth window, with a speech bubble saying "there is so much wrong here, this is wrong, that is wrong, its all just wrong."',
+			},
+		],
 	},
 	{
 		slug: 'make-room-for-all-you-need',
