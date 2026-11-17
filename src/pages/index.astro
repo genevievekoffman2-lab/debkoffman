@@ -1,40 +1,36 @@
 ---
 // index.astro → the Home page, served at "/"
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import debPhoto from '../assets/images/about/aunt_debby.jpg';
 import FilmReel from '../components/FilmReel.astro';
 import { leftReel, rightReel, getReelImages } from '../data/filmReels';
 ---
 
-<BaseLayout>
-	<!-- Hero: "Watching the Grass Grow" print. Walking-legs animation comes later. -->
-	<section class="placeholder hero" aria-label="Featured print">
-		<p>[Hero: <em>Watching the Grass Grow</em> print goes here]</p>
-	</section>
-
+<BaseLayout>	 
 	<!-- Reels + intro: walking-feet film reel | intro blurb | film reel.
 	     Reels are hidden under 900px for now. -->
 	<div class="reel-section">
 		<div class="reel-column">
-			<FilmReel images={getReelImages(leftReel)} />
+			<FilmReel images={getReelImages(leftReel)} direction="down" />
 		</div>
 
 		<!-- Short intro to Deb and her work -->
-		<section class="placeholder intro">
-			<h1>Deb Koffman</h1>
-			<p class="tagline">Cultivating kindness, 1 cartoon at a time.</p>
-			<p>[Intro: a few sentences about Deb and her art]</p>
+		<section class="intro">
+			<Image src={debPhoto} alt="Deb Koffman" width={200} widths={[200, 400]} sizes="200px" class="deb-photo" />
+			<h1>Deb Koffman (1956-2021)</h1>
+			
+			<b>Open Your Heart, Comfort Your Soul, Lift Your Spirits</b>
+			<p> Deb’s art spoke for her and resonated with countless others looking for deep, spiritual meaning in their lives. Art one can laugh with, cry with, and feel hope from; Something to brighten our day or to realize that we’re not alone. </p>
+			<p class="tagline">In late 2021, the Norman Rockwell Museum acquired a significant portion of Deb’s art. The Museum has added her work to it’s collection of artists considered influential in modern American graphics. Artists who both reflected and influenced period American culture. Her art will be used to educate and inspire.</p>
+			<p>A featured installation celebrating the artistry, life and mindful spirit of Berkshire-based artist and author Deb Koffman. Known for her bold, text infused paintings, illustrations and books, Koffman created vibrant works that blend humor, hope and honesty – providing practical tools for self-kindness, resilience and reflection.</p>
 		</section>
 
 		<div class="reel-column">
-			<FilmReel images={getReelImages(rightReel)} />
+			<FilmReel images={getReelImages(rightReel)} direction="up" />
 		</div>
 	</div>
-
-	<!-- Draw a random Soul Support card -->
-	<section class="placeholder draw-card">
-		<h2>Draw a Soul Support card</h2>
-		<p>[Card draw goes here]</p>
-	</section>
+ 
 </BaseLayout>
 
 <style>
@@ -46,6 +42,34 @@ import { leftReel, rightReel, getReelImages } from '../data/filmReels';
 	}
 	.tagline {
 		font-style: italic;
+	}
+
+	/* The intro blurb: same spacing and centering it had as a placeholder,
+	   without the dashed border. */
+	.intro {
+		padding: 1.5rem;
+		margin-bottom: 1.5rem;
+		text-align: center;
+	}
+
+	/* Photo of Deb above the heading, centered. */
+	.deb-photo {
+		display: block;
+		width: 200px;
+		max-width: 100%;
+		height: auto;
+		margin: 0 auto 1rem;
+		border-radius: 8px;
+	}
+
+	/* Reels touch the grass: BaseLayout gives <main> 1.5rem padding on all
+	   sides. `:has(> .reel-section)` matches only the home page's <main>, and
+	   only its top padding is removed. Wide screens only, where the reels show;
+	   under 900px the blurb keeps its space below the grass. */
+	@media (min-width: 901px) {
+		:global(main:has(> .reel-section)) {
+			padding-top: 0;
+		}
 	}
 
 	/* Three columns: 240px reel | blurb | 240px reel, about one screen tall.

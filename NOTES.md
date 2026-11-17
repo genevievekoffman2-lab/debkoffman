@@ -624,3 +624,27 @@ A running log of what was built and why. Newest at the bottom.
 - Black strip (`#111`), still 240px wide: 4px black | 10px hole | 8px black | 196px image | 8px black | 10px hole | 4px black. 8px black bars between frames (and before the first). Images have 2px rounded corners. `<Image />` now makes 196px and 392px versions.
 - **Sprocket holes (CSS only):** `::before` and `::after` on the strip are two 10px-wide columns, full strip height, filled with the page color `#fffdf8`. A **mask** (a CSS image that decides which parts of an element are visible) cuts each column down to just the holes: the mask is a tiny inline SVG tile, 10x24px, containing one 10x14 rounded rectangle (`rx=3`), repeated down the column with `repeat-y`. So there's one hole every 24px for any reel length, and the holes move with the strip when it's animated.
 - Sizes live as CSS variables at the top of `.film-reel` (`--hole-w`, `--hole-h`, `--hole-pitch`, `--hole-edge`, `--hole-gap`, `--film-hole`). Note the hole's 10x14 and 24px pitch are also written inside the SVG tile; change both together.
+
+## Step 36: Film reels loop in opposite directions
+- **Changed:** `src/components/FilmReel.astro`, `src/pages/index.astro`
+- New `direction` prop (`"up"` default, or `"down"`). Home page: left reel `down`, right reel `up`.
+- **Seamless loop:** the strip holds the frames twice (two identical `<ul>`s). A CSS keyframe animation slides the strip with `transform: translateY` from `0` to `-50%`; a % in translate is of the element's own height, so -50% is exactly one set. At the end, set 2 is exactly where set 1 started, so jumping back to 0 is invisible. Down runs the same animation with `animation-direction: reverse`.
+  - Every frame has its 8px bar *after* it (`padding-bottom`, instead of flex `gap`), so a set ends with a bar too and every frame-to-frame step is identical, including set 1 → set 2.
+  - Sprocket holes are on the moving strip, so they move with the film. The hole spacing is now exactly 1/6 of a frame (`--frame-pitch / 6`, about 23.1px instead of 24px), so a set is a whole number of holes and they also line up at the loop point. The mask SVG has a `viewBox` + `preserveAspectRatio='none'` so it stretches to that spacing.
+  - Images get `aspect-ratio: 3 / 2` so their height is fixed before they load (otherwise -50% would be wrong for a moment).
+- **Speed:** `images.length * 4` seconds (60s for 15 frames), linear, infinite. Passed in as `--reel-duration`.
+- **Hover:** `animation-play-state: paused` on the reel under the mouse. **Reduced motion:** `animation: none`. **Performance:** only `transform` animates, plus `will-change: transform`.
+- The copy's images have `alt=""` and its `<ul>` is `aria-hidden="true"`, so screen readers read each frame once.
+
+## Step 37: Home film reels touch the header
+- **Changed:** `src/pages/index.astro` only
+- **Cause of the gap:** `main { padding: 1.5rem; }` in `BaseLayout.astro` (1.5rem of cream above every page's content).
+- **Fix:** `:global(main:has(> .reel-section)) { padding-top: 0; }` inside `@media (min-width: 901px)`. It matches only the `<main>` that directly contains the reel section (the home page), only on wide screens where the reels show. Side/bottom padding and every other page are unchanged; the blurb keeps its own padding and stays vertically centered.
+
+## Step 38: Photo of Deb on the home page
+- **Changed:** `src/pages/index.astro`
+- `src/assets/images/about/aunt_debby.jpg` (square, 762x761) is imported and shown with `<Image />` above the h1 in the intro: centered, 200px wide (plus a 400px version for high-res screens), 8px rounded corners, alt "Deb Koffman".
+
+## Step 39: No dashed border around the home intro
+- **Changed:** `src/pages/index.astro`
+- The intro `<section>` no longer has the global `placeholder` class (which drew the dashed gray border). Its padding (1.5rem), bottom margin, and centered text are now set on `.intro` in the page's own styles, so the spacing looks the same.

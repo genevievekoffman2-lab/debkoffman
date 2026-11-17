@@ -1,76 +1,136 @@
 ---
 // FilmReel.astro
-// A vertical strip of images stacked top to bottom, like a strip of film.
-// It fills its parent's height and hides whatever runs past the bottom
-// (the parent decides the height). Animation comes later.
+// A vertical strip of film: images stacked top to bottom on a black strip,
+// with sprocket holes down both edges, looping forever up or down.
+// It fills its parent's height and hides whatever runs past the edges
+// (the parent decides the height). Hover pauses it; reduced motion stops it.
 //
 // Usage:
 //   import { leftReel, getReelImages } from '../data/filmReels';
-//   <FilmReel images={getReelImages(leftReel)} />
+//   <FilmReel images={getReelImages(leftReel)} direction="down" />
 import { Image } from 'astro:assets';
 import type { ReelImage } from '../data/filmReels';
 
 interface Props {
 	images: ReelImage[];
+	/** Which way the film runs. Default "up". */
+	direction?: 'up' | 'down';
 }
 
-const { images } = Astro.props;
+const { images, direction = 'up' } = Astro.props;
+
+// About 4 seconds per frame, so the speed is the same whatever the reel length.
+const duration = `${images.length * 4}s`;
 ---
 
-<div class="film-reel">
-	<ul class="film-reel-strip">
-		{
-			images.map((img) => (
-				<li>
-					<Image
-						src={img.src}
-						alt={img.alt}
-						width={196}
-						widths={[196, 392]}
-						sizes="196px"
-						class="film-reel-image"
-					/>
-				</li>
-			))
-		}
-	</ul>
+<div class:list={['film-reel', `film-reel--${direction}`]} style={`--reel-duration: ${duration};`}>
+	<!-- The strip holds the frames twice in a row; it slides by exactly one set. -->
+	<div class="film-reel-strip">
+		<ul class="film-reel-set">
+			{
+				images.map((img) => (
+					<li>
+						<Image src={img.src} alt={img.alt} width={196} widths={[196, 392]} sizes="196px" class="film-reel-image" />
+					</li>
+				))
+			}
+		</ul>
+		<!-- Identical copy for the seamless loop; hidden from screen readers so frames aren't read twice. -->
+		<ul class="film-reel-set" aria-hidden="true">
+			{
+				images.map((img) => (
+					<li>
+						<Image src={img.src} alt="" width={196} widths={[196, 392]} sizes="196px" class="film-reel-image" />
+					</li>
+				))
+			}
+		</ul>
+	</div>
 </div>
 
 <style>
 	/* Film strip layout, across the 240px width:
-	     4px black | 10px hole | 8px black | 196px image | 8px black | 10px hole | 4px black */
+	     4px black | 10px hole | 8px black | 196px image | 8px black | 10px hole | 4px black
+	   Down the strip, every frame takes the same space ("frame pitch"):
+	     the image (196px wide at 3:2, so 130.67px tall) + an 8px black bar after it. */
 	.film-reel {
 		--film-black: #111;
 		--film-hole: #fffdf8; /* the page background (body in BaseLayout), so holes look punched through */
+		--frame-w: 196px;
+		--bar: 8px; /* black bar after each frame */
+		--frame-pitch: calc(var(--frame-w) * 2 / 3 + var(--bar));
 		--hole-w: 10px;
-		--hole-h: 14px;
-		--hole-pitch: 24px; /* one hole every 24px */
+		--hole-pitch: calc(var(--frame-pitch) / 6); /* exactly 6 holes per frame (~23px apart) */
 		--hole-edge: 4px; /* black between the strip's edge and a hole */
 		--hole-gap: 8px; /* black between a hole and the images */
 
 		height: 100%;
-		overflow: hidden; /* the "window": frames past the bottom are cut off */
-		background: var(--film-black); /* black continues even past the last frame */
+		overflow: hidden; /* the "window": frames outside it are cut off */
+		background: var(--film-black);
 	}
+
+	/* The moving part: both sets of frames plus the sprocket holes. */
 	.film-reel-strip {
 		position: relative; /* the sprocket-hole columns are placed against this */
-		display: flex;
-		flex-direction: column;
-		gap: 8px; /* black bars between frames */
-		margin: 0;
-		/* top/bottom: a bar before the first frame; sides: room for the holes */
-		padding: 8px calc(var(--hole-edge) + var(--hole-w) + var(--hole-gap));
-		list-style: none;
+		padding: 0 calc(var(--hole-edge) + var(--hole-w) + var(--hole-gap));
 		background: var(--film-black);
+		will-change: transform; /* hint: give it its own layer so sliding is smooth */
+		animation: var(--reel-duration) linear infinite;
+	}
+	/* Up: start in place, slide up by one set (half the strip's height). */
+	.film-reel--up .film-reel-strip {
+		animation-name: film-reel-up;
+	}
+	/* Down: the same slide, played backwards. */
+	.film-reel--down .film-reel-strip {
+		animation-name: film-reel-up;
+		animation-direction: reverse;
+	}
+	@keyframes film-reel-up {
+		from {
+			transform: translateY(0);
+		}
+		to {
+			transform: translateY(-50%); /* % of the strip's own height = one full set */
+		}
+	}
+
+	/* Pause the reel under the mouse, so people can look at a drawing. */
+	.film-reel:hover .film-reel-strip {
+		animation-play-state: paused;
+	}
+	/* Reduced motion: no animation at all. */
+	@media (prefers-reduced-motion: reduce) {
+		.film-reel-strip {
+			animation: none;
+		}
+	}
+
+	.film-reel-set {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	/* Each frame carries its own bar after it (instead of gaps between),
+	   so one set ends with a bar too, the same as between frames. */
+	.film-reel-set li {
+		padding-bottom: var(--bar);
+	}
+	.film-reel-image {
+		display: block;
+		width: var(--frame-w);
+		height: auto;
+		aspect-ratio: 3 / 2; /* fixes the height before the image loads (1200x800) */
+		border-radius: 2px;
 	}
 
 	/* Sprocket holes: one column on each edge, drawn by ::before (left) and
 	   ::after (right), two extra boxes CSS adds without any HTML.
 	   Each column is a tall box in the page color, cut down to just the holes
-	   by a mask. The mask is one tile, 10px wide x 24px tall, holding a
-	   10x14 rounded rectangle (3px corners); mask-repeat stacks that tile all
-	   the way down, so any reel length gets holes. Where the mask is drawn the
-	   page color shows; everywhere else the black strip shows. */
+	   by a mask. The mask is one small tile holding one rounded rectangle
+	   (10x14, 3px corners, centered in the tile); mask-repeat stacks that tile
+	   all the way down, so any reel length gets holes. Where the mask is drawn
+	   the page color shows; everywhere else the black strip shows. */
 	.film-reel-strip::before,
 	.film-reel-strip::after {
 		content: '';
@@ -79,7 +139,7 @@ const { images } = Astro.props;
 		bottom: 0;
 		width: var(--hole-w);
 		background: var(--film-hole);
-		--hole-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='24'%3E%3Crect x='0' y='5' width='10' height='14' rx='3' ry='3'/%3E%3C/svg%3E");
+		--hole-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 24' preserveAspectRatio='none'%3E%3Crect x='0' y='5' width='10' height='14' rx='3' ry='3'/%3E%3C/svg%3E");
 		-webkit-mask: var(--hole-tile) top center / var(--hole-w) var(--hole-pitch) repeat-y;
 		mask: var(--hole-tile) top center / var(--hole-w) var(--hole-pitch) repeat-y;
 		pointer-events: none;
@@ -89,12 +149,5 @@ const { images } = Astro.props;
 	}
 	.film-reel-strip::after {
 		right: var(--hole-edge);
-	}
-
-	.film-reel-image {
-		display: block;
-		width: 100%;
-		height: auto; /* keeps the 3:2 shape (1200x800) */
-		border-radius: 2px;
 	}
 </style>
