@@ -546,3 +546,23 @@ A running log of what was built and why. Newest at the bottom.
   - `lightboxSrc(image)` in `src/lib/lightbox.ts` makes the large webp copy (up to 1600px) and returns its URL.
   - The script creates the `<dialog>` the first time it's needed, so there's only ever one. Its styles use `is:global` because Astro's normal (scoped) styles don't reach elements created by a script.
 - The Sitting Buddhas exhibit photo is now a button: clicking it (or pressing Tab, then Enter) opens the full photo in the same overlay. It has the same hover as the tiles (slight zoom and brighten, kept inside its own box).
+
+## Step 27: ArtBubble, a floating "art bubble" (like a chat widget)
+- **New file:** `src/components/ArtBubble.astro`
+- **Changed:** `src/layouts/BaseLayout.astro`, `src/data/installations.ts`, `src/pages/art/installations/[slug].astro`, `src/pages/shop/[slug].astro`
+- **Usage:** `<ArtBubble image={someImport} text="Order this print" href="/shop/prints#print-1" />`. All three props are required. Pages without it show nothing.
+  - `image`: imported from `src/assets/images/`. It's shown cropped to a circle in the bubble and larger in the open card.
+  - `text`: shown in the open card. It's also the bubble button's `aria-label` (the name screen readers announce).
+  - `href`: where the card's "Take a look →" link goes.
+- **Behavior:**
+  - Hidden at first. The script adds `.is-visible` 2 seconds after the page loads, which fades it in with a small "pop" (a `cubic-bezier` curve that overshoots slightly).
+  - Closed state: a 64px round button pinned to the bottom-right corner (`position: fixed`).
+  - Clicking it opens a 240px card above it. Clicking again, or pressing Escape, closes the card.
+  - `aria-expanded` on the button says whether the card is open. `aria-controls` points to the card.
+  - There's no close-forever option; the bubble always stays.
+  - Hidden below 768px (phones). With "reduce motion" on, it appears and opens without animation.
+- **Site colors:** `--pink` (`#ed9ba3`) and `--ink` (`#13202e`) are now defined on `:root` in `BaseLayout.astro`, so any component can use `var(--pink)` and `var(--ink)`. `--ink` used to be defined only inside the top bar; that copy was removed, and the top bar now uses the global one (same value).
+- **Installations:** new optional `bubble: { image, text, href }` field on each entry. `[slug].astro` renders an ArtBubble when it's set. Signs of Well-Being uses its booth photo, "Order this print", and `/shop/prints#print-1` (a placeholder print).
+- **Shop anchors:** each product `<li>` on a category page now has `id={product.id}`, so a link like `/shop/prints#print-1` jumps to that product. `scroll-margin-top` leaves a little space above it.
+- Note: Astro adds ArtBubble's small script to every installation page (because `[slug].astro` imports the component), but it does nothing on pages without a bubble.
+- **`ProductCallout`** didn't exist, so there was nothing to replace.

@@ -39,6 +39,16 @@ export interface InstallationPhoto {
 	caption?: string;
 }
 
+/** A floating ArtBubble shown on the entry's page (see src/components/ArtBubble.astro). */
+export interface InstallationBubble {
+	/** Image shown in the bubble and its card. */
+	image: ImageMetadata;
+	/** Short line, e.g. "Order this print". */
+	text: string;
+	/** Where the bubble's link goes. */
+	href: string;
+}
+
 /** What kind of piece this is. */
 export type InstallationKind = 'booth' | 'installation' | 'event';
 
@@ -57,6 +67,8 @@ export interface Installation {
 	imageAlt?: string;
 	/** Photos shown on the entry's own page. Optional; without it the page shows a placeholder. */
 	photos?: InstallationPhoto[];
+	/** Optional floating "art bubble" in the bottom-right corner of the entry's page. */
+	bubble?: InstallationBubble;
 }
 
 export const installations: Installation[] = [
@@ -80,13 +92,18 @@ export const installations: Installation[] = [
 			}, 
 		],
 	},
-	{ //TODO add link to ordering this print
+	{ //TODO point the bubble at the real Signs of Well-Being print once it's in products.ts
 		slug: 'signs-of-well-being',
 		title: 'Signs of Well-Being Installation',
 		kind: 'installation',
 		description: 'I need to hear, and see words that encourage my well-being, lift my spirits and open my heart.  These do that for me. I made them big so they would fill the space around me and I could hear them LOUD AND CLEAR. There are other words I hear (inside and outside myself) that aren’t so encouraging.  I know they only encourage suffering because  they deaden me, make me feel depressed, anxious, worthless, ‘stupid’.   I don’t need to hear them any bigger or louder, but I do find it useful to feel, and see the difference between them. The interesting thing is that I have a choice which words to pay attention to.  There are people and places and voices that support my well-being.  It seems  essential to surround myself with those voices. You can order this print as a reminder for your well-being.',
 		image: SignsImg,
 		imageAlt: 'Debs Signs of well being',
+		bubble: {
+			image: SignsImg,
+			text: 'Order this print',
+			href: '/shop/prints#print-1', // placeholder print for now
+		},
 		// photos: [
 		// 	{
 		// 		src: SingYourHeartOut_MartyImg,

@@ -5,6 +5,7 @@
 import type { GetStaticPaths } from 'astro';
 import { Image } from 'astro:assets';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArtBubble from '../../../components/ArtBubble.astro';
 import { installations, type Installation } from '../../../data/installations';
 
 export const getStaticPaths = (() => {
@@ -50,6 +51,8 @@ const { installation: item } = Astro.props;
 
 		<a class="back-link" href="/art/installations">← Back to Installations &amp; Booths</a>
 	</article>
+
+	{item.bubble && <ArtBubble image={item.bubble.image} text={item.bubble.text} href={item.bubble.href} />}
 </BaseLayout>
 
 <style>

@@ -40,7 +40,8 @@ const categoryProducts = products.filter((p) => p.categorySlug === category.slug
 		) : (
 			<ul class="product-grid">
 				{categoryProducts.map((p) => (
-					<li>
+					// id lets other pages link straight to this product, e.g. /shop/prints#print-1
+					<li id={p.id}>
 						{/* The whole card is a button that opens the overlay. aria-haspopup tells
 						    screen readers it opens a dialog. */}
 						<button type="button" class="product-card" data-product-id={p.id} aria-haspopup="dialog">
@@ -113,6 +114,10 @@ const categoryProducts = products.filter((p) => p.categorySlug === category.slug
 	}
 
 	/* Card = a button with no button look: image, name, price. */
+	/* When a link jumps to a product (#print-1), leave a little space above it. */
+	.product-grid li {
+		scroll-margin-top: 2rem;
+	}
 	.product-card {
 		display: block;
 		width: 100%;

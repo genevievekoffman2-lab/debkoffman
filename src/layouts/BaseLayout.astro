@@ -93,6 +93,12 @@ const isCurrent = (href: string) =>
 </html>
 
 <style is:global>
+	/* Site colors, usable anywhere as var(--pink) and var(--ink). */
+	:root {
+		--pink: #ed9ba3; /* the shop-bar pink */
+		--ink: #13202e; /* dark navy for text and outlines */
+	}
+
 	/* Global basics: apply to every page that uses this layout. */
 	*,
 	*::before,
@@ -149,7 +155,6 @@ const isCurrent = (href: string) =>
 	.top-bar {
 		--grass-h: 56px; /* height of the grass strip */
 		--bird-w: 130px; /* width of the bird */
-		--ink: #13202e; /* dark link color that reads well on the blue */
 
 		position: relative; /* makes ::after measure from the header's edges */
 		padding: 0.75rem 1.5rem var(--grass-h); /* bottom padding = grass, so links sit in the sky */
