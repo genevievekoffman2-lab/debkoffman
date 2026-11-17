@@ -566,3 +566,14 @@ A running log of what was built and why. Newest at the bottom.
 - **Shop anchors:** each product `<li>` on a category page now has `id={product.id}`, so a link like `/shop/prints#print-1` jumps to that product. `scroll-margin-top` leaves a little space above it.
 - Note: Astro adds ArtBubble's small script to every installation page (because `[slug].astro` imports the component), but it does nothing on pages without a bubble.
 - **`ProductCallout`** didn't exist, so there was nothing to replace.
+
+## Step 28: Shop category cards use their cover images
+- **Changed:** `src/data/shopCategories.ts`
+- Each folder in `src/assets/images/products/<slug>/` now has a cover image (`3x8notecardsCover.png`, `4x6notecardsCover.jpg`, `soulSupportCover.jpg`, `bookCover.jpg`, `printsCover.jpg`). Each is imported at the top of `shopCategories.ts` and set as its category's `image` (with an `imageAlt`), so the cards on `/shop` show the cover instead of the dashed placeholder. No component changes were needed: CardGrid already shows `image` when it's set.
+
+## Step 29: Real print titles in the Shop
+- **Changed:** `src/data/products.ts`, `src/data/installations.ts` (plus two comments in `ArtBubble.astro` and `shop/[slug].astro`)
+- The three placeholder prints (`print-1`–`print-3`) are replaced by Deb's 19 prints, in the order given: Sit With It All, Headstones, 2 Paths, Observing Fear, Transforming Fear, My Mind, Creative Block, Watching The Grass Grow, Instant Clarity, Instant Compassion, Instant Courage, Writing, One, Two Many Views, Box Of Views, Make Space, Marvelous Day, Map of Yesterday, Looking, Map Of The Territory.
+- Each id is `print-<title-in-lowercase-with-dashes>`, e.g. `print-watching-the-grass-grow`, so `/shop/prints#print-watching-the-grass-grow` jumps to it.
+- Price ($40), description, and size are still placeholders. No images yet.
+- `print-1` no longer exists, so the Signs of Well-Being ArtBubble now links to `#print-sit-with-it-all` (still a placeholder choice).

@@ -102,7 +102,7 @@ export const installations: Installation[] = [
 		bubble: {
 			image: SignsImg,
 			text: 'Order this print',
-			href: '/shop/prints#print-1', // placeholder print for now
+			href: '/shop/prints#print-sit-with-it-all', // placeholder print for now
 		},
 		// photos: [
 		// 	{

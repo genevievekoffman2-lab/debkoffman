@@ -274,10 +274,11 @@ export const products: Product[] = [
 	},
 
 	// ---- Prints ----
+	// Prices and sizes are placeholders.
 	{
-		id: 'print-1',
+		id: 'print-sit-with-it-all',
 		categorySlug: 'prints',
-		name: '[Print 1]',
+		name: 'Sit With It All',
 		price: 40,
 		description: '[Placeholder description of this print.]',
 		specs: [
@@ -285,9 +286,9 @@ export const products: Product[] = [
 		],
 	},
 	{
-		id: 'print-2',
+		id: 'print-headstones',
 		categorySlug: 'prints',
-		name: '[Print 2]',
+		name: 'Headstones',
 		price: 40,
 		description: '[Placeholder description of this print.]',
 		specs: [
@@ -295,9 +296,169 @@ export const products: Product[] = [
 		],
 	},
 	{
-		id: 'print-3',
+		id: 'print-2-paths',
 		categorySlug: 'prints',
-		name: '[Print 3]',
+		name: '2 Paths',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-observing-fear',
+		categorySlug: 'prints',
+		name: 'Observing Fear',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-transforming-fear',
+		categorySlug: 'prints',
+		name: 'Transforming Fear',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-my-mind',
+		categorySlug: 'prints',
+		name: 'My Mind',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-creative-block',
+		categorySlug: 'prints',
+		name: 'Creative Block',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-watching-the-grass-grow',
+		categorySlug: 'prints',
+		name: 'Watching The Grass Grow',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-instant-clarity',
+		categorySlug: 'prints',
+		name: 'Instant Clarity',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-instant-compassion',
+		categorySlug: 'prints',
+		name: 'Instant Compassion',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-instant-courage',
+		categorySlug: 'prints',
+		name: 'Instant Courage',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-writing',
+		categorySlug: 'prints',
+		name: 'Writing',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-one-two-many-views',
+		categorySlug: 'prints',
+		name: 'One, Two Many Views',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-box-of-views',
+		categorySlug: 'prints',
+		name: 'Box Of Views',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-make-space',
+		categorySlug: 'prints',
+		name: 'Make Space',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-marvelous-day',
+		categorySlug: 'prints',
+		name: 'Marvelous Day',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-map-of-yesterday',
+		categorySlug: 'prints',
+		name: 'Map of Yesterday',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-looking',
+		categorySlug: 'prints',
+		name: 'Looking',
+		price: 40,
+		description: '[Placeholder description of this print.]',
+		specs: [
+			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-map-of-the-territory',
+		categorySlug: 'prints',
+		name: 'Map Of The Territory',
 		price: 40,
 		description: '[Placeholder description of this print.]',
 		specs: [
