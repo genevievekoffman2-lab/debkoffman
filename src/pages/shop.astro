@@ -2,26 +2,223 @@
 // shop.astro → the Shop landing page, served at "/shop"
 // One card per collection in src/data/shopCategories.ts (same order as that list).
 // Each card links to /shop/<slug>.
+//
+// Styled after Deb's "It's Not What It Is" print
+// (src/assets/images/products/prints/notwhatitisprint.jpg): a teal panel
+// edged with her black-and-white border strip, holding white cards with a
+// solid blue shadow.
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CardGrid from '../components/CardGrid.astro';
 import { shopCategories } from '../data/shopCategories';
+import borderH from '../assets/images/products/border-strip-horizontal.png';
+import borderV from '../assets/images/products/border-strip-vertical.png';
+import tealBg from '../assets/images/products/teal-background.jpg';
+
+// The strip and background images, as CSS url(...) values for the styles below (via define:vars).
+const stripH = `url(${borderH.src})`;
+const stripV = `url(${borderV.src})`;
+const tealTexture = `url(${tealBg.src})`;
 ---
 
 <BaseLayout title="Shop">
-	<h1 class="page-title">Shop</h1>
+	<section class="shop-panel">
+		<!-- The four border strips. Top/bottom run the full width (so they cover
+		     the corners); left/right run between them. -->
+		<span class="strip strip-top" aria-hidden="true"></span>
+		<span class="strip strip-bottom" aria-hidden="true"></span>
+		<span class="strip strip-left" aria-hidden="true"></span>
+		<span class="strip strip-right" aria-hidden="true"></span>
 
-	<div class="shop-cards">
-		<CardGrid items={shopCategories} baseUrl="/shop" />
-	</div>
+		<h1 class="page-title">Shop</h1>
+
+		<ul class="shop-grid">
+			{
+				shopCategories.map((cat) => (
+					<li>
+						<a class="shop-card" href={`/shop/${cat.slug}`}>
+							{cat.image ? (
+								<Image src={cat.image} alt={cat.imageAlt ?? ''} width={600} class="shop-card-image" />
+							) : (
+								<div class="shop-card-image shop-card-placeholder" aria-hidden="true">
+									[{cat.title}]
+								</div>
+							)}
+							<h2 class="shop-card-title">{cat.title}</h2>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</section>
 </BaseLayout>
 
-<style>
+<style define:vars={{ stripH, stripV, tealTexture }}>
+	/* ---- Full-bleed on this page only ----
+	   BaseLayout's <main> is normally a centered 1100px column with 1.5rem
+	   padding. `:has(.shop-panel)` matches only when the teal panel is inside,
+	   i.e. only on /shop, and removes that column so the panel reaches the
+	   window edges and sits directly under the grass.
+	   The body/main flex column lets the panel stretch to the bottom of the
+	   window when there isn't much content. */
+	:global(body:has(.shop-panel)) {
+		display: flex;
+		flex-direction: column;
+		min-height: 100vh;
+		min-height: 100dvh; /* phones: the visible height, minus browser toolbars */
+	}
+	:global(main:has(> .shop-panel)) {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		max-width: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	/* ---- The teal panel ---- */
+	.shop-panel {
+		--strip: 24px; /* border thickness */
+		position: relative;
+		flex: 1; /* at least the rest of the window's height; grows with content */
+		/* Painted teal texture, scaled to fill the whole area (no repeat).
+		   The solid color shows while the image loads. */
+		background: #1cb0aa var(--tealTexture) center / cover no-repeat;
+		/* Room for the strips, plus teal breathing space inside them. */
+		padding: calc(var(--strip) + 1.5rem) calc(var(--strip) + 2.5rem) calc(var(--strip) + 3rem);
+	}
+
+	/* ---- Border strips ----
+	   The strip PNGs are drawn for the top and left edges: the thin black
+	   line on the outside, the teal-tinted edge on the inside. The bottom and
+	   right strips are flipped so their inside edge also faces the teal. */
+	.strip {
+		position: absolute;
+		pointer-events: none;
+	}
+	.strip-top,
+	.strip-bottom {
+		left: 0;
+		right: 0;
+		height: var(--strip);
+		background-image: var(--stripH);
+		background-repeat: repeat-x;
+		background-size: auto var(--strip);
+	}
+	.strip-top {
+		top: 0;
+	}
+	.strip-bottom {
+		bottom: 0;
+		transform: scaleY(-1); /* flip so the inner edge faces up, toward the teal */
+	}
+	.strip-left,
+	.strip-right {
+		top: var(--strip); /* start/stop at the top/bottom strips: clean corners */
+		bottom: var(--strip);
+		width: var(--strip);
+		background-image: var(--stripV);
+		background-repeat: repeat-y;
+		background-size: var(--strip) auto;
+	}
+	.strip-left {
+		left: 0;
+	}
+	.strip-right {
+		right: 0;
+		transform: scaleX(-1); /* flip so the inner edge faces left, toward the teal */
+	}
+
 	.page-title {
 		text-align: center;
-		margin: 1rem 0 2rem;
+		margin: 0 0 2rem;
+		color: #13202e;
 	}
-	/* Space below the grid before the footer. */
-	.shop-cards {
-		margin-bottom: 3rem;
+
+	/* ---- Card grid: 3 columns desktop, 2 tablet, 1 phone ---- */
+	.shop-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 2.5rem; /* even teal space between cards */
+		max-width: 1000px;
+		margin: 0 auto;
+		padding: 0;
+		list-style: none;
+	}
+	@media (max-width: 900px) {
+		.shop-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	@media (max-width: 560px) {
+		.shop-panel {
+			padding: calc(var(--strip) + 1.25rem) calc(var(--strip) + 1.25rem) calc(var(--strip) + 2rem);
+		}
+		.shop-grid {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+	}
+
+	/* ---- Cards: white, thin black "hand-drawn" outline, solid blue shadow ---- */
+	.shop-card {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		height: 100%;
+		box-sizing: border-box;
+		padding: 1.25rem 1.25rem 1rem;
+		background: #fefdf3;
+		border: 2px solid #13202e;
+		/* Slightly uneven corners so the outline looks drawn, not ruled. */
+		border-radius: 3px 7px 4px 6px / 6px 3px 7px 4px;
+		box-shadow: 8px 8px 0 #2d67a9; /* offset, no blur */
+		color: #13202e;
+		text-decoration: none;
+		text-align: center;
+		transition:
+			transform 0.15s ease,
+			box-shadow 0.15s ease;
+	}
+	.shop-card-image {
+		display: block;
+		width: 100%;
+		height: auto;
+		aspect-ratio: 1 / 1;
+		object-fit: contain; /* whole image, centered, never cropped */
+	}
+	.shop-card-placeholder {
+		display: grid;
+		place-items: center;
+		box-sizing: border-box;
+		border: 2px dashed #c9c2b2;
+		border-radius: 8px;
+		color: #8a8273;
+	}
+	.shop-card-title {
+		margin: 0.75rem 0 0;
+		font-size: 1.25rem;
+	}
+
+	/* Hover: the card lifts toward its shadow. */
+	.shop-card:hover,
+	.shop-card:focus-visible {
+		transform: translate(-3px, -3px);
+		box-shadow: 11px 11px 0 #2d67a9;
+	}
+	.shop-card:hover .shop-card-title {
+		text-decoration: underline;
+	}
+	.shop-card:focus-visible {
+		outline: 3px solid #13202e;
+		outline-offset: 4px;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.shop-card {
+			transition: none;
+		}
+		.shop-card:hover,
+		.shop-card:focus-visible {
+			transform: none;
+		}
 	}
 </style>

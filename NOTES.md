@@ -587,3 +587,27 @@ A running log of what was built and why. Newest at the bottom.
 - Framed cards are 6:7 (portrait) instead of square, to match the frames' shape; the frame stretches to fill the card (`object-fit: fill`), only a few percent.
 - Entries without an image (Magic Lamp Book Launch, Make Room for All You Need) show the dashed placeholder inside the window.
 - Series and Shop grids don't pass `frames`, so they're unchanged.
+
+## Step 31: Shop landing page styled like the "It's Not What It Is" print
+- **Changed:** `src/pages/shop.astro` only (no longer uses CardGrid, so Series/Installations are untouched)
+- **Reference:** `src/assets/images/products/prints/notwhatitisprint.jpg`
+- **Teal panel** (`#46BFBA`) holds the page title and cards, inside the normal page width.
+- **Border:** four `<span class="strip">` elements on the panel's edges, each 24px thick, using `border-strip-horizontal.png` (repeat-x) and `border-strip-vertical.png` (repeat-y) from `src/assets/images/products/`. The strip images are passed into CSS with `define:vars` (an Astro feature that turns frontmatter values into CSS variables, here `--stripH`/`--stripV`).
+  - The strips aren't transparent; they have a white background. Their thin black line is the outer edge and their teal-tinted edge is the inner edge. They're drawn for top/left, so the bottom and right strips are flipped with `transform: scaleY(-1)` / `scaleX(-1)`.
+  - Corners: top/bottom strips run the full width; left/right strips start and stop where those end, so nothing overlaps.
+- **Cards:** off-white `#FEFDF3`, 2px ink outline with slightly uneven corner rounding (looks hand-drawn), solid blue `#2D67A9` shadow offset 8px down-right with no blur. Image centered (`object-fit: contain`), title below inside the card. Same `/shop/<slug>` links.
+- **Grid:** 3 columns, 2 at ≤900px, 1 at ≤560px; even 2.5rem teal gaps (2rem on phones).
+
+## Step 32: Shop teal panel goes full-bleed
+- **Changed:** `src/pages/shop.astro` only
+- **Why there was a gap:** BaseLayout's `<main>` is a centered column (`max-width: 1100px`, `padding: 1.5rem`), so the panel sat inside it with cream showing above and on the sides. The panel also had `margin-bottom: 3rem`.
+- **Fix:** in shop.astro's styles, `:global(main:has(> .shop-panel))` removes main's max-width, margin, and padding. `:has()` is a CSS selector meaning "an element that contains…", so this matches only on the page with the teal panel, and BaseLayout itself is unchanged. The panel's bottom margin is gone.
+- **Full height:** `body:has(.shop-panel)` becomes a flex column at least `100dvh` tall (`dvh` = the visible window height, which on phones excludes the browser toolbars). `main` and the panel each take `flex: 1`, so the teal reaches the bottom of the window and still grows with content.
+- Strips stay on the panel's four edges, which are now the window's edges. The card grid stays centered at `max-width: 1000px`.
+- No `100vw` is used (it can include the scrollbar's width), so the full-bleed panel doesn't cause sideways scrolling.
+
+## Step 33: Painted teal texture on the Shop panel
+- **Changed:** `src/pages/shop.astro` only
+- The panel's flat teal is replaced by `src/assets/images/products/teal-background.jpg` (imported like the border strips and passed to CSS as `--tealTexture` via `define:vars`).
+- `background: #1cb0aa var(--tealTexture) center / cover no-repeat;`: `cover` scales the image to fill the whole panel at any size (trimming edges if needed), `center` keeps it centered, no tiling. `#1CB0AA` is the solid fallback shown while the image loads.
+- The border strips are separate elements on top, so they're unchanged.
