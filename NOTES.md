@@ -611,3 +611,16 @@ A running log of what was built and why. Newest at the bottom.
 - The panel's flat teal is replaced by `src/assets/images/products/teal-background.jpg` (imported like the border strips and passed to CSS as `--tealTexture` via `define:vars`).
 - `background: #1cb0aa var(--tealTexture) center / cover no-repeat;`: `cover` scales the image to fill the whole panel at any size (trimming edges if needed), `center` keeps it centered, no tiling. `#1CB0AA` is the solid fallback shown while the image loads.
 - The border strips are separate elements on top, so they're unchanged.
+
+## Step 34: Home page film reels (layout only)
+- **New:** `src/data/filmReels.ts`, `src/components/FilmReel.astro`. **Changed:** `src/pages/index.astro`
+- **`filmReels.ts`:** `leftReel` and `rightReel` are lists of file names (no `.jpg`) from `src/assets/images/walking/`, top to bottom. `getReelImages(names)` turns names into `{ src, alt }` using `import.meta.glob` (a Vite feature that imports every matching file at build time). A misspelled name fails the build with a clear message. Alt text comes from the name: `walking-on-stilts` → "Deb's striped-stocking feet walking on stilts"; `sand` → "Deb's striped-stocking feet walking: sand".
+- **`FilmReel.astro`:** takes `images` and stacks them vertically with `<Image />` at 240px wide (also a 480px version for sharp high-res screens; `sizes="240px"` tells the browser which to pick). Fills its parent's height with `overflow: hidden`, so frames past the bottom are cut off like film behind a window.
+- **Home page:** the intro is wrapped in `.reel-section`, a 3-column grid (240px | blurb | 240px), `100vh` tall, blurb vertically centered. Under 900px the reels are hidden and the blurb shows on its own.
+- Unused for now: `hill.jpg` and `walking-panels.zip` in the walking folder.
+
+## Step 35: FilmReel looks like a strip of film
+- **Changed:** `src/components/FilmReel.astro` only
+- Black strip (`#111`), still 240px wide: 4px black | 10px hole | 8px black | 196px image | 8px black | 10px hole | 4px black. 8px black bars between frames (and before the first). Images have 2px rounded corners. `<Image />` now makes 196px and 392px versions.
+- **Sprocket holes (CSS only):** `::before` and `::after` on the strip are two 10px-wide columns, full strip height, filled with the page color `#fffdf8`. A **mask** (a CSS image that decides which parts of an element are visible) cuts each column down to just the holes: the mask is a tiny inline SVG tile, 10x24px, containing one 10x14 rounded rectangle (`rx=3`), repeated down the column with `repeat-y`. So there's one hole every 24px for any reel length, and the holes move with the strip when it's animated.
+- Sizes live as CSS variables at the top of `.film-reel` (`--hole-w`, `--hole-h`, `--hole-pitch`, `--hole-edge`, `--hole-gap`, `--film-hole`). Note the hole's 10x14 and 24px pitch are also written inside the SVG tile; change both together.

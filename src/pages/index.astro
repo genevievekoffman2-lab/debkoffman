@@ -1,6 +1,8 @@
 ---
 // index.astro → the Home page, served at "/"
 import BaseLayout from '../layouts/BaseLayout.astro';
+import FilmReel from '../components/FilmReel.astro';
+import { leftReel, rightReel, getReelImages } from '../data/filmReels';
 ---
 
 <BaseLayout>
@@ -9,12 +11,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 		<p>[Hero: <em>Watching the Grass Grow</em> print goes here]</p>
 	</section>
 
-	<!-- Short intro to Deb and her work -->
-	<section class="placeholder intro">
-		<h1>Deb Koffman</h1>
-		<p class="tagline">Cultivating kindness, 1 cartoon at a time.</p>
-		<p>[Intro: a few sentences about Deb and her art]</p>
-	</section>
+	<!-- Reels + intro: walking-feet film reel | intro blurb | film reel.
+	     Reels are hidden under 900px for now. -->
+	<div class="reel-section">
+		<div class="reel-column">
+			<FilmReel images={getReelImages(leftReel)} />
+		</div>
+
+		<!-- Short intro to Deb and her work -->
+		<section class="placeholder intro">
+			<h1>Deb Koffman</h1>
+			<p class="tagline">Cultivating kindness, 1 cartoon at a time.</p>
+			<p>[Intro: a few sentences about Deb and her art]</p>
+		</section>
+
+		<div class="reel-column">
+			<FilmReel images={getReelImages(rightReel)} />
+		</div>
+	</div>
 
 	<!-- Draw a random Soul Support card -->
 	<section class="placeholder draw-card">
@@ -32,5 +46,37 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 	}
 	.tagline {
 		font-style: italic;
+	}
+
+	/* Three columns: 240px reel | blurb | 240px reel, about one screen tall.
+	   Each reel fills the full height and is clipped there (see FilmReel). */
+	.reel-section {
+		display: grid;
+		grid-template-columns: 240px minmax(0, 1fr) 240px;
+		gap: 2rem;
+		height: 100vh;
+		margin-bottom: 1.5rem;
+	}
+	.reel-column {
+		height: 100%;
+		min-height: 0;
+	}
+	.reel-section .intro {
+		align-self: center; /* blurb sits in the middle, vertically */
+		margin-bottom: 0;
+	}
+
+	/* Narrower than 900px: no reels yet, just the blurb at its normal height. */
+	@media (max-width: 900px) {
+		.reel-section {
+			display: block;
+			height: auto;
+		}
+		.reel-column {
+			display: none;
+		}
+		.reel-section .intro {
+			margin-bottom: 1.5rem;
+		}
 	}
 </style>

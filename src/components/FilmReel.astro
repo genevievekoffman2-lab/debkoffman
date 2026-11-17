@@ -1,0 +1,100 @@
+---
+// FilmReel.astro
+// A vertical strip of images stacked top to bottom, like a strip of film.
+// It fills its parent's height and hides whatever runs past the bottom
+// (the parent decides the height). Animation comes later.
+//
+// Usage:
+//   import { leftReel, getReelImages } from '../data/filmReels';
+//   <FilmReel images={getReelImages(leftReel)} />
+import { Image } from 'astro:assets';
+import type { ReelImage } from '../data/filmReels';
+
+interface Props {
+	images: ReelImage[];
+}
+
+const { images } = Astro.props;
+---
+
+<div class="film-reel">
+	<ul class="film-reel-strip">
+		{
+			images.map((img) => (
+				<li>
+					<Image
+						src={img.src}
+						alt={img.alt}
+						width={196}
+						widths={[196, 392]}
+						sizes="196px"
+						class="film-reel-image"
+					/>
+				</li>
+			))
+		}
+	</ul>
+</div>
+
+<style>
+	/* Film strip layout, across the 240px width:
+	     4px black | 10px hole | 8px black | 196px image | 8px black | 10px hole | 4px black */
+	.film-reel {
+		--film-black: #111;
+		--film-hole: #fffdf8; /* the page background (body in BaseLayout), so holes look punched through */
+		--hole-w: 10px;
+		--hole-h: 14px;
+		--hole-pitch: 24px; /* one hole every 24px */
+		--hole-edge: 4px; /* black between the strip's edge and a hole */
+		--hole-gap: 8px; /* black between a hole and the images */
+
+		height: 100%;
+		overflow: hidden; /* the "window": frames past the bottom are cut off */
+		background: var(--film-black); /* black continues even past the last frame */
+	}
+	.film-reel-strip {
+		position: relative; /* the sprocket-hole columns are placed against this */
+		display: flex;
+		flex-direction: column;
+		gap: 8px; /* black bars between frames */
+		margin: 0;
+		/* top/bottom: a bar before the first frame; sides: room for the holes */
+		padding: 8px calc(var(--hole-edge) + var(--hole-w) + var(--hole-gap));
+		list-style: none;
+		background: var(--film-black);
+	}
+
+	/* Sprocket holes: one column on each edge, drawn by ::before (left) and
+	   ::after (right), two extra boxes CSS adds without any HTML.
+	   Each column is a tall box in the page color, cut down to just the holes
+	   by a mask. The mask is one tile, 10px wide x 24px tall, holding a
+	   10x14 rounded rectangle (3px corners); mask-repeat stacks that tile all
+	   the way down, so any reel length gets holes. Where the mask is drawn the
+	   page color shows; everywhere else the black strip shows. */
+	.film-reel-strip::before,
+	.film-reel-strip::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: var(--hole-w);
+		background: var(--film-hole);
+		--hole-tile: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='24'%3E%3Crect x='0' y='5' width='10' height='14' rx='3' ry='3'/%3E%3C/svg%3E");
+		-webkit-mask: var(--hole-tile) top center / var(--hole-w) var(--hole-pitch) repeat-y;
+		mask: var(--hole-tile) top center / var(--hole-w) var(--hole-pitch) repeat-y;
+		pointer-events: none;
+	}
+	.film-reel-strip::before {
+		left: var(--hole-edge);
+	}
+	.film-reel-strip::after {
+		right: var(--hole-edge);
+	}
+
+	.film-reel-image {
+		display: block;
+		width: 100%;
+		height: auto; /* keeps the 3:2 shape (1200x800) */
+		border-radius: 2px;
+	}
+</style>
