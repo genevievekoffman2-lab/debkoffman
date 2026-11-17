@@ -15,6 +15,7 @@ import courageImg from '../assets/images/series/courage-bcard.jpg';
 import breastImg from '../assets/images/series/breasts-arms-800.jpg';
 import { sittingBuddhasPhotos } from './galleries/sitting-buddhas';
 import sittingBuddhasExhibitImg from '../assets/images/series/sitting-buddhas/sittingbuddhas-exhibit.jpg';
+import doubtBuddhaImg from '../assets/images/series/sitting-buddhas/doubt_buddha.JPG';
 
 /** One photo in a series' photo grid (PhotoGrid). */
 export interface GalleryPhoto {
@@ -69,6 +70,8 @@ export const series: Series[] = [
 		slug: 'sitting-buddhas',
 		title: 'Sitting Buddhas',
 		description: 'This cardboard installation of sitting buddhas speaks to my need to remember that I can simply sit with my feelings.  Hold them, be with them, not judge them.  They are all equal, no one better or worse.  Just different.  All worth experiencing.',
+		image: doubtBuddhaImg,
+		imageAlt: 'Sitting Buddha holding a sign that reads "Doubt"',
 		photos: sittingBuddhasPhotos,
 		introImage: sittingBuddhasExhibitImg,
 		introImageAlt: 'Four Sitting Buddha paintings hanging in a gallery, holding signs that read "Desire," "Love," "Pain," and "Doubt"',

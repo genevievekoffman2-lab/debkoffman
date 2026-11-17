@@ -648,3 +648,7 @@ A running log of what was built and why. Newest at the bottom.
 ## Step 39: No dashed border around the home intro
 - **Changed:** `src/pages/index.astro`
 - The intro `<section>` no longer has the global `placeholder` class (which drew the dashed gray border). Its padding (1.5rem), bottom margin, and centered text are now set on `.intro` in the page's own styles, so the spacing looks the same.
+
+## Step 40: Sitting Buddhas card image
+- **Changed:** `src/data/series.ts`
+- Imported `src/assets/images/series/sitting-buddhas/doubt_buddha.JPG` as `doubtBuddhaImg` and set it as the Sitting Buddhas entry's `image` (the square card on `/art/series`), with alt text. The import path keeps the file's uppercase `.JPG`: paths are case-sensitive on most web hosts, so they must match the filename exactly.
