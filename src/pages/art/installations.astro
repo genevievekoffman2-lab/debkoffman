@@ -4,12 +4,13 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CardGrid from '../../components/CardGrid.astro';
 import { installations } from '../../data/installations';
+import { frames } from '../../data/frames';
 ---
 
 <BaseLayout title="Installations & Booths">
 	<h1 class="page-title">Installations &amp; Booths</h1>
 
-	<CardGrid items={installations} baseUrl="/art/installations" />
+	<CardGrid items={installations} baseUrl="/art/installations" frames={frames} />
 
 	<p class="back">
 		<a class="back-link" href="/art">← Back to Her Art</a>

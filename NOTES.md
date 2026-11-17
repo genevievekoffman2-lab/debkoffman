@@ -577,3 +577,13 @@ A running log of what was built and why. Newest at the bottom.
 - Each id is `print-<title-in-lowercase-with-dashes>`, e.g. `print-watching-the-grass-grow`, so `/shop/prints#print-watching-the-grass-grow` jumps to it.
 - Price ($40), description, and size are still placeholders. No images yet.
 - `print-1` no longer exists, so the Signs of Well-Being ArtBubble now links to `#print-sit-with-it-all` (still a placeholder choice).
+
+## Step 30: Hand-drawn frames on the Installations & Booths cards
+- **New:** `src/data/frames.ts` (the six frame PNGs from `src/assets/images/frames/`, each with the position of its transparent window)
+- **Changed:** `src/components/CardGrid.astro` (new optional `frames` prop), `src/pages/art/installations.astro` (passes `frames={frames}`)
+- Each card on `/art/installations` gets a different frame on top (pink, teal, yellow, purple, green, orange, in card order). The card's image sits behind the frame, placed in the frame's window, so it shows through.
+- **Window box:** the window's `left`/`top`/`width`/`height` are percentages of the frame image, measured from the PNG's transparency (alpha = how see-through each pixel is). Each frame's window is in a slightly different place, so each has its own numbers.
+- The photo uses `object-fit: cover` (fills the window, trimming edges if needed) and is 4% bigger than the window so its edges hide under the drawn line.
+- Framed cards are 6:7 (portrait) instead of square, to match the frames' shape; the frame stretches to fill the card (`object-fit: fill`), only a few percent.
+- Entries without an image (Magic Lamp Book Launch, Make Room for All You Need) show the dashed placeholder inside the window.
+- Series and Shop grids don't pass `frames`, so they're unchanged.
