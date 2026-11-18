@@ -3,7 +3,8 @@
 // (a file inside a folder in src/pages/ gets that folder's name in its URL)
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { Image } from 'astro:assets';
-import houseTulips from '../../assets/images/about/house-tulips.jpg';
+import houseTulips from '../../assets/images/about/house/house-tulips.jpg';
+import BenchWithCats from '../../assets/images/about/house/bench-in-foyer.jpg';
 ---
 
 <BaseLayout title="Deb's House">
@@ -20,8 +21,12 @@ import houseTulips from '../../assets/images/about/house-tulips.jpg';
 		/>
 		<p>
 			My dear sweet kitties…Shoobie and Izzy
-			[insert cat image here]
 		</p>
+		<Image
+			src={BenchWithCats}
+			alt="Shoobie and Izzy on window" 
+		/>
+		<p></p>
 		<a class="back-link" href="/about">← Back to About Deb</a>
 	</section>
 </BaseLayout>
