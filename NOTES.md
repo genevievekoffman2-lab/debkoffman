@@ -693,3 +693,16 @@ A running log of what was built and why. Newest at the bottom.
 - A glow shows (`opacity: 1`) only on the hovered spot (`.spot:hover + .glow`), the keyboard-focused spot (`.spot:focus-visible + .glow`), and the selected spot (`.spot[aria-pressed="true"] + .glow`). The script already sets `aria-pressed="true"` on just one spot at a time, so only one stays glowing.
 - The fade in/out is `transition: opacity 0.2s, scale 0.2s`. With `prefers-reduced-motion` it's instant (no transition), the same as before.
 - `cursor: pointer` on `.spot` is unchanged.
+
+## Step 46: Bigger Her Art doors, centered vertically + Magic Lamp cover
+- **Changed:** `src/pages/art.astro`, `src/components/LinkCard.astro`, `src/data/installations.ts`
+- **Full width on /art only:** `:global(main:has(> .art-cards))` removes BaseLayout's 1100px column (`max-width: none`), so the three equal `1fr` columns span the window (up to 2000px). Same `:has()` trick as the Shop page.
+- **Vertical centering:** `body:has(.art-cards)` becomes a flex column at least the window's height (`min-height: 100dvh`). `main` gets `flex: 1` (takes all the space under the header) and `justify-content: center`, so the doors sit in the middle of that space.
+- **Door size:** in LinkCard's door variant, the `max-width: 420px` cap is gone. The image is now `width/height: auto` + `max-width: 100%` (fills its column) + `max-height: var(--door-max-h, none)`. A CSS variable is a named value; set on a parent, it's passed down to children. art.astro sets `--door-max-h: calc(100dvh - 14rem)` (the window height minus room for the header), so on wide screens all three doors still fit on screen. With `auto` sizes and two max limits, the browser keeps the image's proportions, so the hinge point (26%) stays in the right spot.
+- Door images now optimize at 1200px wide (cards stay 800px), so bigger doors stay sharp.
+- **Magic Lamp Book Launch** now has a cover image: `her-art/booths/magic-lamp-group.jpg` (imported as `MagicLampGroupImg`).
+
+## Step 47: Center a lone gallery photo on installation pages
+- **Changed:** `src/pages/art/installations/[slug].astro` (CSS only)
+- The gallery is a 2-column grid, so pages with a single photo (Whisper Your Wish, Sing Your Heart Out) showed it in the left column. New rule: `.gallery li:only-child { grid-column: 1 / -1; }`. `:only-child` matches an element that is the only one inside its parent, and `1 / -1` means "from the first column line to the last", so the photo's cell spans the full width. The image already has `max-width: 480px; margin: 0 auto`, so it's centered in that cell.
+- Pages with 2+ photos (Complaint Booth) are unchanged.

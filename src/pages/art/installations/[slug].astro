@@ -86,6 +86,11 @@ const { installation: item } = Astro.props;
 		padding: 0;
 		list-style: none;
 	}
+	/* Only one photo? Let it span both columns (first column line to last),
+	   so it sits in the center instead of the left column. */
+	.gallery li:only-child {
+		grid-column: 1 / -1;
+	}
 	.gallery figure {
 		margin: 0;
 	}

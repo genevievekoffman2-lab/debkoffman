@@ -28,6 +28,7 @@ import SingYourHeartOut_MartyImg from '../assets/images/her-art/booths/sing-mart
 import WhisperWishImg from '../assets/images/her-art/booths/whisper-300dpi.jpg';
 import WhisperWish_MartyImg from '../assets/images/her-art/booths/whisper-mart.jpg';
 import SignsImg from '../assets/images/her-art/booths/signs-800.jpg';
+import MagicLampGroupImg from '../assets/images/her-art/booths/magic-lamp-group.jpg';
 
 /** One photo in an entry's gallery. */
 export interface InstallationPhoto {
@@ -77,6 +78,8 @@ export const installations: Installation[] = [
 		title: 'Magic Lamp Book Launch',
 		kind: 'event',
 		description: '[Placeholder description of the Magic Lamp Book Launch.]',
+		image: MagicLampGroupImg,
+		imageAlt: 'A group of people at the Magic Lamp book launch',
 	},
 	{
 		slug: 'sing-your-heart-out-booth',

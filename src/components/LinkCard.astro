@@ -38,7 +38,7 @@ const {
 <a class:list={['link-card', { 'link-card--door': variant === 'door' }]} href={href}>
 	{
 		image ? (
-			<Image src={image} alt={imageAlt} width={800} class="card-image" />
+			<Image src={image} alt={imageAlt} width={variant === 'door' ? 1200 : 800} class="card-image" />
 		) : (
 			<div class="card-image card-image-placeholder">{placeholder}</div>
 		)
@@ -136,11 +136,14 @@ const {
 
 	/* The image at its natural proportions: no fixed box, no cropping. */
 	.link-card--door .card-image {
-		width: 100%;
-		max-width: 420px;
+		/* As big as its column allows (max-width: 100%), and no taller than
+		   --door-max-h if the page sets it. width/height auto + the two max limits
+		   keep the image's own proportions, so it never stretches. */
+		width: auto;
 		height: auto;
+		max-width: 100%;
+		max-height: var(--door-max-h, none);
 		aspect-ratio: auto;
-		object-fit: fill;
 
 		/* The swing.
 		   - perspective(900px): how far the "camera" is. It gives the turn real 3D depth.

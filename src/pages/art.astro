@@ -34,13 +34,38 @@ import moreDoor from '../assets/images/her-art/more-to-marvel-at-door.png';
 		margin: 1rem 0 2rem;
 	}
 
+	/* ---- This page only: full width, doors centered vertically ----
+	   BaseLayout's <main> is normally a centered 1100px column. `:has(> .art-cards)`
+	   matches only this page's <main>, so other pages are unaffected.
+	   body + main become a flex column that fills the window height; main takes
+	   all the space under the header (flex: 1), and the doors sit in its middle. */
+	:global(body:has(.art-cards)) {
+		display: flex;
+		flex-direction: column;
+		min-height: 100vh;
+		min-height: 100dvh; /* phones: the visible height, minus browser toolbars */
+	}
+	:global(main:has(> .art-cards)) {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center; /* vertical centering */
+		max-width: none;
+		width: 100%;
+	}
+
 	/* Three equal columns side by side on desktop (Series, Installations, More to Marvel At). */
 	.art-cards {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
+		align-items: center;
 		gap: 2rem;
+		width: 100%;
 		max-width: 2000px;
-		margin: 0 auto 3rem;
+		margin: 0 auto;
+		/* Tallest a door may be: the window height minus room for the header and
+		   padding, so all three fit on screen on wide monitors. Read by LinkCard. */
+		--door-max-h: calc(100dvh - 14rem);
 	}
 
 	/* Phones: one column, cards stacked. */
