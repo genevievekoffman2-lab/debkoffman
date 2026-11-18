@@ -1,0 +1,320 @@
+---
+// StoryMap.astro
+// Deb's hand-drawn "Map of the Territory" with clickable, glowing arrows.
+// Clicking an arrow (or pressing "next →") shows that part of her story beside the map.
+//
+// Positions come from src/data/aboutMap.ts and are PERCENTAGES of the map image,
+// so the buttons and glows stay on the arrows at any screen width.
+import { Image } from 'astro:assets';
+import mapImg from '../assets/images/about/map-territory-1200.jpg';
+import { mapSpots, fullStory } from '../data/aboutMap';
+
+// "The Bold Part: I make art (stories, poems…"  → the button's accessible name
+const firstWords = (text: string, count = 6) => {
+	const words = text.split(/\s+/);
+	return words.slice(0, count).join(' ') + (words.length > count ? '…' : '');
+};
+
+const startSpot = mapSpots.find((spot) => spot.id === 'start') ?? mapSpots[0];
+---
+
+<section class="story-map" id="story-map" aria-label="Deb's Map of the Territory">
+	<div class="panel">
+		<p class="panel-text is-showing" aria-live="polite">{startSpot.text}</p>
+		<div class="panel-buttons">
+			<button type="button" class="panel-btn" data-action="next">next →</button>
+			<button
+				type="button"
+				class="panel-btn"
+				data-action="all"
+				aria-expanded="false"
+				aria-controls="full-story"
+			>read it all</button>
+		</div>
+	</div>
+	<div class="map">
+		<Image
+			src={mapImg}
+			alt="Deb's hand-drawn Map of the Territory, with red arrows pointing to its parts"
+			widths={[600, 900, 1200]}
+			sizes="(max-width: 900px) calc(100vw - 3rem), 800px"
+			class="map-img"
+		/>
+		
+
+		{
+			mapSpots.map((spot, i) => (
+				<>
+					<button
+						type="button"
+						class="spot"
+						data-index={i}
+						data-text={spot.text}
+						aria-label={`${spot.label}: ${firstWords(spot.text)}`}
+						aria-pressed={spot.id === startSpot.id ? 'true' : 'false'}
+						style={`left:${spot.box.left}%;top:${spot.box.top}%;width:${spot.box.width}%;height:${spot.box.height}%;`}
+					/>
+					<span
+						class="glow"
+						aria-hidden="true"
+						style={`left:${spot.glow.x}%;top:${spot.glow.y}%;`}
+					/>
+				</>
+			))
+		}
+	</div>
+
+	<!-- "read it all": Deb's full text below the map, hidden until that button is pressed -->
+	<div class="full-story" id="full-story" hidden>
+		<h2 tabindex="-1">About Deb</h2>
+		{fullStory.aboutDeb.map((para) => <p>{para}</p>)}
+		<h2>More About Deb</h2>
+		{fullStory.moreAboutDeb.map((para) => <p>{para}</p>)}
+		<a class="back-link" href="#story-map">↑ back to the map</a>
+	</div>
+
+	 
+</section>
+
+<style>
+	/* Side by side on desktop: text panel (1 part) | map (2 parts). */
+	.story-map {
+		display: grid;
+		grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr);
+		gap: 2.5rem;
+		align-items: center; /* panel sits level with the middle of the map */
+		max-width: 1200px;
+		margin: 0 auto 3rem;
+	}
+
+	/* The map: the image sets the size; buttons and glows are placed on top of it. */
+	.map {
+		position: relative; /* the % positions below are measured from this box */
+	}
+	.map-img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	/* Clickable areas: invisible, covering each arrow and its label. */
+	.spot {
+		position: absolute;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		border-radius: 6px;
+		z-index: 2; /* above the glows */
+	}
+	.spot:focus-visible {
+		outline: 3px solid var(--ink);
+		outline-offset: 2px;
+	}
+
+	/* The glow: a soft yellow circle centred on the arrow, 6% of the map's width. */
+	.glow {
+		position: absolute;
+		width: 6%;
+		aspect-ratio: 1; /* a circle, even though the map isn't square */
+		translate: -50% -50%; /* centre the circle on the glow point */
+		border-radius: 50%;
+		background: radial-gradient(
+			circle,
+			#ffe45c 0%,
+			rgba(255, 228, 92, 0.6) 40%,
+			rgba(255, 228, 92, 0) 70%
+		);
+		/* Multiply: yellow tints the paper, but the red arrow still shows through,
+		   so the glow looks like it's behind the arrow. */
+		mix-blend-mode: multiply;
+		pointer-events: none; /* clicks go to the button */
+		opacity: 0; /* no glow by default */
+		transition:
+			opacity 0.2s ease,
+			scale 0.2s ease;
+		z-index: 1;
+	}
+
+	/* Selected spot: stays glowing until another spot is selected. */
+	.spot[aria-pressed='true'] + .glow {
+		opacity: 1;
+		scale: 1.1;
+	}
+	/* Hovered or keyboard-focused spot: glows (a little bigger). */
+	.spot:hover + .glow,
+	.spot:focus-visible + .glow {
+		opacity: 1;
+		scale: 1.25;
+	}
+
+	/* The text panel beside the map. */
+	.panel {
+		text-align: left;
+	}
+	.panel-text {
+		font-size: 1.75rem;
+		line-height: 1.4;
+		margin: 0 0 1.25rem;
+		opacity: 0;
+	}
+	/* "read it all": the full story, below the map and panel, at normal reading size. */
+	.full-story {
+		grid-column: 1 / -1; /* span both grid columns, so it sits under the panel AND the map */
+		width: 100%;
+		max-width: 65ch; /* about 65 characters per line */
+		margin: 1.5rem auto 0;
+		font-size: 1.125rem;
+		line-height: 1.7;
+		scroll-margin-top: 1.5rem; /* leave a little space above it when scrolled into view */
+	}
+	.full-story:not([hidden]) {
+		animation: text-fade-in 0.5s ease;
+	}
+	.full-story h2 {
+		margin: 0 0 0.75rem;
+	}
+	.full-story h2:focus {
+		outline: none; /* focused by script, not clicked, so no outline box */
+	}
+	.full-story p {
+		margin: 0 0 1.25em;
+	}
+	.full-story p + h2 {
+		margin-top: 2.5rem; /* extra space before "More About Deb" */
+	}
+	.back-link {
+		display: inline-block;
+		margin-top: 0.5rem;
+		color: var(--ink);
+		font-weight: 600;
+	}
+	.back-link:focus-visible {
+		outline: 3px solid var(--ink);
+		outline-offset: 3px;
+	}
+	.panel-text.is-showing {
+		animation: text-fade-in 0.5s ease forwards;
+	}
+	@keyframes text-fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	.panel-buttons {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+	.panel-btn {
+		font: inherit;
+		font-size: 1.125rem;
+		padding: 0.5rem 1.25rem;
+		border: 2px solid var(--ink);
+		border-radius: 999px;
+		background: transparent;
+		color: var(--ink);
+		cursor: pointer;
+	}
+	.panel-btn:hover {
+		background: var(--pink);
+	}
+	.panel-btn:focus-visible {
+		outline: 3px solid var(--ink);
+		outline-offset: 3px;
+	}
+
+	/* Tablets and phones: stack the panel and map, centered. */
+	@media (max-width: 900px) {
+		.story-map {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 1.5rem;
+		}
+		.panel {
+			max-width: 40ch;
+			margin: 0 auto;
+			text-align: center;
+		}
+		.panel-buttons {
+			justify-content: center;
+		}
+	}
+
+	@media (max-width: 700px) {
+		.panel-text {
+			font-size: 1.25rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.glow {
+			transition: none;
+		}
+		.full-story:not([hidden]) {
+			animation: none;
+		}
+		.panel-text.is-showing {
+			animation: none;
+			opacity: 1;
+		}
+	}
+</style>
+
+<script>
+	// Wire up each StoryMap on the page (normally just one).
+	document.querySelectorAll<HTMLElement>('.story-map').forEach((root) => {
+		const spots = Array.from(root.querySelectorAll<HTMLButtonElement>('.spot'));
+		const textEl = root.querySelector<HTMLElement>('.panel-text')!; // one spot's text
+		const fullEl = root.querySelector<HTMLElement>('.full-story')!; // the full story section
+		const fullHeading = fullEl.querySelector<HTMLElement>('h2')!; // "About Deb"
+		const toggleBtn = root.querySelector<HTMLButtonElement>('[data-action="all"]')!;
+		const backLink = root.querySelector<HTMLAnchorElement>('.back-link')!;
+		let current = 0; // index of the selected spot ("start" is first)
+
+		// Smooth scrolling, unless the visitor's system asks for reduced motion.
+		const scrollBehavior = (): ScrollBehavior =>
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+
+		const select = (index: number) => {
+			current = index;
+			spots.forEach((spot, i) => spot.setAttribute('aria-pressed', String(i === index)));
+			textEl.textContent = spots[index].dataset.text ?? '';
+			textEl.classList.remove('is-showing');
+			void textEl.offsetWidth; // forces the browser to notice the removal, so the fade restarts
+			textEl.classList.add('is-showing');
+		};
+
+		spots.forEach((spot, i) => spot.addEventListener('click', () => select(i)));
+
+		root.querySelector('[data-action="next"]')!.addEventListener('click', () => {
+			select((current + 1) % spots.length); // % wraps from the last spot back to start
+		});
+
+		// "read it all" / "hide full story"
+		toggleBtn.addEventListener('click', () => {
+			const opening = fullEl.hidden;
+			fullEl.hidden = !opening;
+			toggleBtn.setAttribute('aria-expanded', String(opening));
+			toggleBtn.textContent = opening ? 'hide full story' : 'read it all';
+
+			if (opening) {
+				// Move focus to the heading without the browser jumping there itself,
+				// then scroll there our way (smooth, or instant for reduced motion).
+				fullHeading.focus({ preventScroll: true });
+				fullEl.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
+			}
+		});
+
+		// "↑ back to the map": scroll up to the map and put focus back on the toggle button.
+		// (Without JavaScript, href="#story-map" still jumps there.)
+		backLink.addEventListener('click', (event) => {
+			event.preventDefault();
+			toggleBtn.focus({ preventScroll: true });
+			root.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
+		});
+	});
+</script>

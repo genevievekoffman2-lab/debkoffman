@@ -652,3 +652,44 @@ A running log of what was built and why. Newest at the bottom.
 ## Step 40: Sitting Buddhas card image
 - **Changed:** `src/data/series.ts`
 - Imported `src/assets/images/series/sitting-buddhas/doubt_buddha.JPG` as `doubtBuddhaImg` and set it as the Sitting Buddhas entry's `image` (the square card on `/art/series`), with alt text. The import path keeps the file's uppercase `.JPG`: paths are case-sensitive on most web hosts, so they must match the filename exactly.
+
+## Step 41: Interactive Story Map on the About page
+- **New:** `src/components/StoryMap.astro`, `src/data/aboutMap.ts`, `src/assets/images/about/map-territory-1200.jpg`. **Changed:** `src/pages/about.astro` (StoryMap placed right under the "About Deb" h1; the old content is still below it for now).
+- **Layout:** the map `<Image />` (600/900/1200px versions) sits in `.map`, which is `position: relative`. Each spot in `mapSpots` gets a transparent `<button>` placed with `left/top/width/height` in % from its `box`, and a sibling `<span class="glow">` placed at its `glow` x/y in %. Because every value is a % of the map box, and the box always has the image's proportions, the buttons and glows scale with the image and stay on the arrows at any width.
+- **Glow:** a 6%-wide circle (`aspect-ratio: 1` keeps it round), centered on its point with `translate: -50% -50%`, filled with a radial gradient of `#FFE45C` fading to transparent. `mix-blend-mode: multiply` (a blend mode: the glow's color is multiplied with the pixels under it, so white paper turns yellow and dark ink/red stays dark) makes it look like the glow is behind the arrow. `pointer-events: none` lets clicks go through to the button.
+  - Pulse: `glow-pulse` keyframes (opacity + scale) on all glows. `.map:has(.spot:hover)` stops all pulsing while any spot is hovered.
+  - Hover/focus: `.spot:hover + .glow` (`+` = the element right after) is brightest. Selected: `.spot[aria-pressed="true"] + .glow` is steady and bright.
+  - `prefers-reduced-motion`: no pulse, no transitions, no text fade.
+- **Accessibility:** buttons are labeled "<label>: <first 6 words>…" and use `aria-pressed` (tells screen readers which one is selected). Native buttons give Tab / Enter / Space for free; a 3px ink outline appears on `:focus-visible` (keyboard focus only). The panel text is `aria-live="polite"`, so screen readers read the new text when it changes.
+- **Panel:** shows the selected text (1.75rem; 1.25rem under 700px) and fades in on each change (the script removes and re-adds the `is-showing` class). "next →" goes to the next spot and wraps back to "start" using `%`. "read it all" clears the selection and shows every text except the "start" instructions as one paragraph.
+
+## Step 42: Story Map panel beside the map
+- **Changed:** `src/components/StoryMap.astro`
+- `.story-map` is now a 2-column grid on desktop: text panel `minmax(16rem, 1fr)` | map `2fr` (the map gets twice the space), 2.5rem gap, panel vertically centered against the map. The panel comes first in the HTML, so it's on the left. Text is left-aligned beside the map.
+- Under 900px it's one column (panel on top, map below), with centered text, the same as before.
+- "read it all" adds an `is-all` class to the text, making it smaller (1.25rem desktop, 1.125rem phone), so the long paragraph fits beside the map. Single spots stay at 1.75rem / 1.25rem.
+- The map image `sizes` is now `(max-width: 900px) calc(100vw - 3rem), 800px`, since on desktop the map is only about 2/3 of the width.
+- The % positioning of the buttons and glows is unchanged: they're measured from the `.map` box, which still has the image's exact proportions.
+
+## Step 43: 13 map spots + full story for "read it all"
+- **Changed:** `src/data/aboutMap.ts` (by me: 13 spots in story order, plus new `fullStory` export), `src/components/StoryMap.astro`
+- StoryMap already builds one button + glow per entry in `mapSpots`, and "next →" uses the array order, so all 13 spots work with no code change. A quick script confirmed every spot has numeric `box`/`glow` values and that each glow falls inside its click box.
+- **"read it all"** no longer joins the spot texts. `fullStory` is rendered at build time into a `<div class="full-story" hidden>` in the panel: an `<h2>About Deb</h2>`, the `aboutDeb` paragraphs, an `<h2>More About Deb</h2>`, and the `moreAboutDeb` paragraphs, each paragraph its own `<p>`. (`hidden` is an HTML attribute that hides an element until script removes it.)
+- The script's `reveal(el, other)` shows one block, hides the other, and replays the fade-in. "read it all" reveals the full story; clicking a spot or "next →" goes back to that spot's text. The old `allText` / `data-all-text` code is gone.
+- The full story keeps the smaller "read it all" size (`is-all`: 1.25rem desktop, 1.125rem phone). It's taller than the map, so on desktop the map sits centered beside it.
+
+## Step 44: "read it all" opens a full-story section below the map
+- **Changed:** `src/components/StoryMap.astro`
+- The full story moved out of the panel into its own `<div class="full-story" id="full-story" hidden>` after the map. It's a third item in the `.story-map` grid with `grid-column: 1 / -1` (start at the first column line, end at the last), so it sits under both the panel and the map. Inside: `<h2>About Deb</h2>` + paragraphs, `<h2>More About Deb</h2>` + paragraphs, then a `↑ back to the map` link (`href="#story-map"`; the section now has `id="story-map"`).
+- **Reading style:** 1.125rem, line-height 1.7 (the same as the About page's `.prose`), `max-width: 65ch`, centered, left-aligned, 1.25em between paragraphs, 2.5rem before the second heading. A short fade-in when it opens (none with reduced motion).
+- **Toggle button:** `aria-expanded` ("false"/"true": tells screen readers whether the section it controls is open) and `aria-controls="full-story"` (says which section that is). The label switches between "read it all" and "hide full story". It no longer touches the selected spot or the panel text.
+- **Open:** remove `hidden` → `heading.focus({ preventScroll: true })` → `section.scrollIntoView({ behavior, block: 'start' })`. `behavior` is `'smooth'`, or `'auto'` (instant) when `matchMedia('(prefers-reduced-motion: reduce)')` matches. The heading has `tabindex="-1"` (it can receive focus from script but isn't added to the Tab order). `scroll-margin-top: 1.5rem` leaves a little space above it.
+- **Back link:** stops the normal `#` jump (`preventDefault`), focuses the toggle button (`preventScroll`), and scrolls the map section into view the same way. Without JavaScript the link still jumps to `#story-map`.
+- **Removed:** the old `reveal()` helper and the `is-all` styles.
+
+## Step 45: Glow only on hover, focus, and the selected arrow
+- **Changed:** `src/components/StoryMap.astro` (CSS only)
+- Removed the `glow-pulse` animation and the `.map:has(.spot:hover)` rule. Glows now start at `opacity: 0` (invisible).
+- A glow shows (`opacity: 1`) only on the hovered spot (`.spot:hover + .glow`), the keyboard-focused spot (`.spot:focus-visible + .glow`), and the selected spot (`.spot[aria-pressed="true"] + .glow`). The script already sets `aria-pressed="true"` on just one spot at a time, so only one stays glowing.
+- The fade in/out is `transition: opacity 0.2s, scale 0.2s`. With `prefers-reduced-motion` it's instant (no transition), the same as before.
+- `cursor: pointer` on `.spot` is unchanged.

@@ -7,60 +7,20 @@ import { Image } from 'astro:assets';
 import blessings from '../assets/images/about/mailchimp-blessings.png';
 import houseTulips from '../assets/images/about/house-tulips.jpg';
 import debPhoto from '../assets/images/about/aunt_deb_img.png';
+import StoryMap from '../components/StoryMap.astro';
 ---
 
 <BaseLayout title="About Deb">
-	<article class="about">
-		<h1 class="page-title">About Deb</h1>
+	<article class="about"> 
 
-		<!-- 1. Intro: photo + opening paragraph, side by side on desktop -->
-		<section class="intro">
-			<Image
-				src={debPhoto}
-				alt="Deb Koffman smiling, wearing a dark sweater and a striped scarf"
-				width={580}
-				class="intro-photo"
-			/>
-			<div class="intro-text">
-				<p>
-					"I make art (stories, poems, cartoons, installations, card decks) to understand, reflect and honor my emotions and thinking patterns. I write stories about choice, poems that give me advice, cartoons that remind me what really matters to my heart and soul.
-					I’m deeply drawn to Buddhist teachings and to the practice of meditation and mindful awareness. I practice paying attention to my reactions, my thinking, my speech, my physical sensations. My books, cartoons and card decks all offer me guidance, wise advice, reminders when I’m stuck or struggling, lost or confused.
-					My hope is that my work encourages your well-being, helping you navigate your emotional and mental life more easily."
+		<!-- Deb's clickable Map of the Territory -->
+		<StoryMap />
 
-				</p>
-			</div>
-		</section>
-
-		<!-- 2. -->
-		<IconDivider src={feet} />
-
+		  
 		<!-- 3 + 6: story text and Deb's blessings note, side by side on desktop -->
 		<div class="story">
 		<!-- 3. -->
-		<section class="prose">
-			<h2> More About Deb</h2>
-			<p>
-				When I moved to the Berkshires in 1988 I didn’t know a thing about spirituality or feelings or healing or art. I was deeply deeply unhappy and confused about life. I didn’t know what mattered, I didn’t know how I mattered.
-			</p>
-			<p>
-				By chance, and grace I discovered Kripalu, Gurudev, yoga, and an amazing community of body-centered healers. My whole world changed. 
-				What I wore, what I ate, what I thought about, my friends, the pace I moved at, what I cared about. I read TONS of books on psychology, physics, mind-body awareness and healing. 
-				I found and studied NLP (neuro-linguistic programming) and Ericksonian Hypnosis with Zen teacher and NLP trainer, Richard Clarke. NLP became a foundation for my thinking and being, and continues to inform my life and art.
-			</p>
-			<p>
-				I studied and trained in Vivation(breathwork), NVC(non-violent communication), authentic movement(a mindfulness based movement practice), continuum, and mindfulness meditation.
-			</p>
-			<p>
-				All of these practices inspired ART. I needed to make visual reminders of what I learned ‘on the cushion’ and in the therapist’s office.
-			</p>
-			<p>
-				Most of my work (on myself and on paper) is about understanding words; concepts, feelings and ideas that don’t make sense to me. Words have the power to ground me and comfort me or twist me into a whirling ball of distress, confusion and fear.
-			</p>
-			<p>
-				Compassion, love, creativity, depression, peace, presence, humility, relax, choice, emptiness.
-				What do these words really mean? Deeply? In my body?  Does ‘crazy’ mean wrong? or different? or brave? or swimming in unknown territory?
-			</p>
-		</section> 
+		 
 
 		<!-- 6. Second photo -->
 		<Image
