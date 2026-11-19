@@ -9,6 +9,7 @@
 //
 // The grid breaks out of the page's text column to span the whole screen,
 // edge to edge. 5 columns on desktop, 3 on tablets and phones.
+// A row that isn't full (e.g. only 2 photos) is centered.
 import { Image } from 'astro:assets';
 import Lightbox from './Lightbox.astro';
 import { lightboxSrc } from '../lib/lightbox';
@@ -63,18 +64,26 @@ const tiles = await Promise.all(photos.map(async (p) => ({ ...p, full: await lig
 		margin-bottom: 2.5rem;
 	}
 
-	/* Gapless grid: no gap, no padding. 5 columns on desktop. */
+	/* Gapless rows of tiles: no gap, no padding. Flexbox (not grid) so that a row
+	   that isn't full is centered: flex-wrap moves extra tiles onto a new row,
+	   and justify-content: center puts each row's tiles in the middle. */
 	.photo-grid {
-		display: grid;
-		grid-template-columns: repeat(5, minmax(0, 1fr));
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
 		gap: 0;
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
+	/* Each tile is 1/5 of the width on desktop (5 per row)... */
+	.photo-grid li {
+		width: 20%;
+	}
+	/* ...and 1/3 on tablets and phones (3 per row). */
 	@media (max-width: 900px) {
-		.photo-grid {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
+		.photo-grid li {
+			width: calc(100% / 3);
 		}
 	}
 

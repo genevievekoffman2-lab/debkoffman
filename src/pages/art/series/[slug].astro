@@ -24,6 +24,9 @@ interface Props {
 
 const { series: s } = Astro.props;
 
+// description can be one string or a list of paragraphs; make it always a list.
+const paragraphs = Array.isArray(s.description) ? s.description : [s.description];
+
 // URL of a large copy of the intro photo, for the lightbox (none if there's no intro photo).
 const introFull = s.introImage ? await lightboxSrc(s.introImage) : undefined;
 ---
@@ -34,7 +37,7 @@ const introFull = s.introImage ? await lightboxSrc(s.introImage) : undefined;
 		{
 			s.introImage ? (
 				<div class="intro">
-					<p class="description">{s.description}</p>
+					<div class="description">{paragraphs.map((text) => <p>{text}</p>)}</div>
 					{/* A button so it can be clicked (or reached with Tab + Enter) to open the lightbox. */}
 					<button
 						type="button"
@@ -55,7 +58,7 @@ const introFull = s.introImage ? await lightboxSrc(s.introImage) : undefined;
 					<Lightbox />
 				</div>
 			) : (
-				<p class="description">{s.description}</p>
+				<div class="description">{paragraphs.map((text) => <p>{text}</p>)}</div>
 			)
 		}
 
@@ -84,6 +87,14 @@ const introFull = s.introImage ? await lightboxSrc(s.introImage) : undefined;
 		max-width: 65ch;
 		margin: 0 auto 2rem;
 		font-size: 1.125rem;
+	}
+	/* Space between paragraphs, but none after the last one
+	   (the .description box above already has its own bottom margin). */
+	.description p {
+		margin: 0 0 1em;
+	}
+	.description p:last-child {
+		margin-bottom: 0;
 	}
 
 	/* Description left, photo right, spanning the full screen width (full bleed,

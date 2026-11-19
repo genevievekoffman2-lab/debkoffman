@@ -750,3 +750,22 @@ A running log of what was built and why. Newest at the bottom.
 ## Step 55: Door bubble image on Make Room for All You Need
 - **Changed:** `src/data/installations.ts`: imported `src/assets/images/bubbles/door-doorway.jpg` as `DoorDoorwayImg` and set it as the Make Room for All You Need bubble's `bubbleImage` (the floating circle). The opened card still shows the print (`MakeRoomPrintImg`).
 - New folder `src/assets/images/bubbles/` holds images made for bubbles.
+
+## Step 56: Card photo for One Way or Another
+- **Changed:** `src/data/series.ts`: imported `src/assets/images/series/one-way-or-another/one-way-cover.JPG` as `oneWayCoverImg` and set it as the entry's `image`, so its card on `/art/series` shows a photo.
+- The file's extension is uppercase (`.JPG`), so the import uses `.JPG` too. Macs ignore the difference, but many web servers and build machines don't, so the import has to match the real file name exactly.
+
+## Step 57: Multi-paragraph series descriptions
+- **Changed:** `src/data/series.ts`: `description` can now be one string or an array of strings (`string | string[]`), one per paragraph. Existing series (single strings) are unchanged.
+- **Changed:** `src/pages/art/series/[slug].astro`:
+  - `paragraphs` turns `description` into a list either way.
+  - The description is now a `<div class="description">` holding one `<p>` per paragraph (in both places it's drawn: with and without an intro photo). It's a single wrapper because `.intro` is a 2-column grid (text | photo): separate `<p>`s would each become their own grid cell and break the layout.
+  - CSS: `.description p` gets `1em` space below it, except the last one (`:last-child`), so a one-paragraph description looks exactly as before.
+
+## Step 58: Center photo rows that aren't full
+- **Changed:** `src/components/PhotoGrid.astro` (CSS only). The tiles used to be a CSS grid with 5 fixed columns (3 on screens ≤ 900px), so a short row sat on the left: One Way or Another's 2 photos took the first 2 of 5 columns.
+- Now `.photo-grid` uses flexbox: `flex-wrap: wrap` (tiles that don't fit move to a new row) and `justify-content: center` (each row's tiles sit in the middle). Each tile (`li`) is `20%` wide (5 per row), or `calc(100% / 3)` (3 per row) on screens ≤ 900px. Tiles are still gapless squares.
+- Applies to every series page: full rows look the same, and any row that isn't full is centered. On Sitting Buddhas (13 photos) the last row (3 on desktop, 1 on tablets/phones) is now centered.
+
+## Step 59: Card photo for Sitting Buddhas
+- **Changed:** `src/data/series.ts`: imported `src/assets/images/series/sitting-buddhas/all.jpg` as `sittingBuddhasCardImg` and set it as the Sitting Buddhas entry's `image` (with `imageAlt`), so its card on `/art/series` shows a photo. Chosen because it shows one buddha holding several feeling signs at once (Anger, Love, Comfort), which sums up the series.

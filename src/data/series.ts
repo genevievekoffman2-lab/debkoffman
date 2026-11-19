@@ -15,6 +15,10 @@ import courageImg from '../assets/images/series/courage-bcard.jpg';
 import breastImg from '../assets/images/series/breasts-arms-800.jpg';
 import { sittingBuddhasPhotos } from './galleries/sitting-buddhas';
 import sittingBuddhasExhibitImg from '../assets/images/series/sitting-buddhas/sittingbuddhas-exhibit.jpg';
+import sittingBuddhasCardImg from '../assets/images/series/sitting-buddhas/all.jpg';
+import oneWayCoverImg from '../assets/images/series/one-way-or-another/one-way-cover.jpg';
+import oneWayDebbieImg from '../assets/images/series/one-way-or-another/one-way-deb.jpg';
+import noOneWayImg from '../assets/images/series/one-way-or-another/no-one-way.jpg';
 
 /** One photo in a series' photo grid (PhotoGrid). */
 export interface GalleryPhoto {
@@ -29,8 +33,8 @@ export interface Series {
 	slug: string;
 	/** The name shown on the site. */
 	title: string;
-	/** A short description of the series. */
-	description: string;
+	/** A short description of the series: one string, or an array of strings (one per paragraph). */
+	description: string | string[];
 	/** Cover image, imported from src/assets/images/series/. Optional. */
 	image?: ImageMetadata;
 	/** Describes the image for screen readers. Leave empty if the title says it all. */
@@ -70,13 +74,30 @@ export const series: Series[] = [
 		title: 'Sitting Buddhas',
 		description: 'This cardboard installation of sitting buddhas speaks to my need to remember that I can simply sit with my feelings.  Hold them, be with them, not judge them.  They are all equal, no one better or worse.  Just different.  All worth experiencing.',
 		photos: sittingBuddhasPhotos,
+		image: sittingBuddhasCardImg,
+		imageAlt: 'Painted cardboard sitting buddha holding several feeling signs at once: Anger, Love, and Comfort',
 		introImage: sittingBuddhasExhibitImg,
 		introImageAlt: 'Four Sitting Buddha paintings hanging in a gallery, holding signs that read "Desire," "Love," "Pain," and "Doubt"',
 	},
 	{
 		slug: 'one-way-or-another',
 		title: 'One Way or Another',
-		description: '[Placeholder description of the One Way or Another series.]',
+		description: [
+			'There are so many ways to respond to life…to thoughts, behaviors, feelings, words.',
+			'Why do we choose just one way?  And which way should we choose???   The right way? The best way? A different way? The easy way?  A difficult way?  My mother’s way?  My way?  Your way?  No way?',
+			'This cardboard installation can be arranged and rearranged in any number of ways!',
+		],
+		photos: [
+			{
+				src: oneWayDebbieImg,
+				alt: 'Deb with her One way or another exhibit',
+			},
+			{
+				src: noOneWayImg,
+				alt: 'No one way image',
+			},
+		],
+		image: oneWayCoverImg,
 	},
 	{
 		slug: 'love-your-body',
