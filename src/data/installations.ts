@@ -10,6 +10,8 @@
 //   1. put the file in the folder, e.g. complaint-t.jpg
 //   2. import it at the top:  import ComplaintBoothImg from '../assets/images/her-art/booths/complaint-t.jpg';
 import complaintMartyImg from '../assets/images/her-art/booths/complaint-marty-800.jpg';
+import doorsImg from '../assets/images/her-art/booths/doors.jpg';
+import makeRoomForWhatYouNeedImg from '../assets/images/products/prints/make-room-for-what-you-need.jpg';
 //   3. set it on the entry:   image: ComplaintBoothImg, imageAlt: '...',
 //
 // GALLERY PHOTOS (shown on the entry's own page, in this order):
@@ -29,6 +31,9 @@ import WhisperWishImg from '../assets/images/her-art/booths/whisper-300dpi.jpg';
 import WhisperWish_MartyImg from '../assets/images/her-art/booths/whisper-mart.jpg';
 import SignsImg from '../assets/images/her-art/booths/signs-800.jpg';
 import MagicLampGroupImg from '../assets/images/her-art/booths/magic-lamp-group.jpg';
+import MakeRoomImg from '../assets/images/her-art/booths/room-for-all-you-need.jpg';
+import MakeRoomPrintImg from '../assets/images/products/prints/make-room-for-what-you-need.jpg';
+import DoorDoorwayImg from '../assets/images/bubbles/door-doorway.jpg';
 
 /** One photo in an entry's gallery. */
 export interface InstallationPhoto {
@@ -42,8 +47,10 @@ export interface InstallationPhoto {
 
 /** A floating ArtBubble shown on the entry's page (see src/components/ArtBubble.astro). */
 export interface InstallationBubble {
-	/** Image shown in the bubble and its card. */
-	image: ImageMetadata;
+	/** Image in the floating circle in the corner. */
+	bubbleImage: ImageMetadata;
+	/** Image in the card that opens when the bubble is clicked. Can be the same as bubbleImage. */
+	cardImage: ImageMetadata;
 	/** Short line, e.g. "Order this print". */
 	text: string;
 	/** Where the bubble's link goes. */
@@ -60,8 +67,8 @@ export interface Installation {
 	title: string;
 	/** Booth, installation, or event. */
 	kind: InstallationKind;
-	/** A short description. */
-	description: string;
+	/** A short description: one string, or an array of strings (one per paragraph). */
+	description: string | string[];
 	/** Cover image, imported from src/assets/images/installations/. Optional. */
 	image?: ImageMetadata;
 	/** Describes the image for screen readers. Leave empty if the title says it all. */
@@ -103,7 +110,8 @@ export const installations: Installation[] = [
 		image: SignsImg,
 		imageAlt: 'Debs Signs of well being',
 		bubble: {
-			image: SignsImg,
+			bubbleImage: SignsImg,
+			cardImage: SignsImg,
 			text: 'Order this print',
 			href: '/shop/prints#print-sit-with-it-all', // placeholder print for now
 		},
@@ -150,6 +158,29 @@ export const installations: Installation[] = [
 		slug: 'make-room-for-all-you-need',
 		title: 'Make Room for All You Need Installation',
 		kind: 'installation',
-		description: '[Placeholder description of the Make Room for All You Need Installation.]',
+		description: [
+			'These doors are a reminder that my feelings  and needs matter.  I need a space, a place, time to be with them, experience them.',
+			'Anger is as valuable as dreaming, as valuable as making mistakes, as valuable as not knowing.  Being with them shows me what they have to offer me.  They each serve me in some way.',
+			'I can’t always be ‘perfect’ and ‘certain’ and ‘happy’.  For me, being a functional, resourceful, creative human being means accepting, respecting, making room for all parts of me.',
+			'These doors are part of larger installation of 15 doors that I photographed and photoshopped so I could put it in this context'
+		],
+		image: MakeRoomImg,
+		imageAlt: 'Debs Make Room for All You Need installation',
+		bubble: {
+			bubbleImage: DoorDoorwayImg,
+			cardImage: MakeRoomPrintImg,
+			text: 'Order this print',
+			href: '/shop/prints#print-make-room-for-all-you-need',
+		},
+		photos: [
+			{
+				src: makeRoomForWhatYouNeedImg,
+				alt: 'make room for what you need print',
+			},
+			{
+				src: doorsImg,
+				alt: 'colorful door paintings',
+			},
+		],
 	},
 ];

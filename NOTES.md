@@ -706,3 +706,47 @@ A running log of what was built and why. Newest at the bottom.
 - **Changed:** `src/pages/art/installations/[slug].astro` (CSS only)
 - The gallery is a 2-column grid, so pages with a single photo (Whisper Your Wish, Sing Your Heart Out) showed it in the left column. New rule: `.gallery li:only-child { grid-column: 1 / -1; }`. `:only-child` matches an element that is the only one inside its parent, and `1 / -1` means "from the first column line to the last", so the photo's cell spans the full width. The image already has `max-width: 480px; margin: 0 auto`, so it's centered in that cell.
 - Pages with 2+ photos (Complaint Booth) are unchanged.
+
+## Step 48: Deb's real books in the Books category
+- **Renamed:** `src/assets/images/products/books/Food-For-The-Soul-cover.jpeg` → `food-for-the-soul-cover.jpeg` (lowercase-with-dashes, like every other image).
+- **Changed:** `src/data/products.ts`: removed the 3 placeholder books (`book-1`–`book-3`) and added 12 real ones, in this order: Some Days, Being With A Block, This Might Be IT., The Blank Page, Standing, The Magic Lamp, On My Way, Seeing Things, Notice This., Facing Fear, Food For The Soul, How To Have A Marvelous Day. Each `id` is the title's URL slug (e.g. `/shop/books#facing-fear`). Price is a placeholder `0` except The Magic Lamp (`16.95`). Description is a placeholder `[Description of <title>]`. `imageAlt` is `Cover of <title>`. The placeholder Pages/Format specs were dropped.
+- Some cover files are named differently from the title: `blank-page-cover.jpg` (The Blank Page) and `fear-cover.jpeg` (Facing Fear).
+- `bookCover.jpg` (used by the Books category card in `shopCategories.ts`) is an identical copy of `being-with-a-block-cover.jpg`. It was left as is.
+- **Uncropped covers:** `src/pages/shop/[slug].astro` and `src/components/ProductDialog.astro`. Product images normally sit in a square box (`aspect-ratio: 1 / 1`; `object-fit: contain` fits the whole image inside it). On the Books page only (`naturalShape = category.slug === 'books'`), a `natural-shape` class turns the box off (`aspect-ratio: auto`), so each cover shows at its own proportions.
+  - Grid: `align-items: end` lines up the bottoms of covers in a row, so titles and prices stay level.
+  - Overlay: `ProductDialog` takes a new optional `naturalShape` prop. The cover fills the column's width, with `max-height: calc(100dvh - 6rem)` (`dvh` = 1% of the visible window height), so a tall cover shrinks to fit the window instead of running off it.
+  - Other categories are unchanged.
+
+## Step 49: Cover image for Make Room for All You Need
+- **Changed:** `src/data/installations.ts`: imported `src/assets/images/her-art/booths/room-for-all-you-need.jpg` as `MakeRoomImg` and set it as the entry's `image` (with `imageAlt`), so its card on `/art/installations` now shows a photo like the others. Its own page still has no `photos` gallery.
+
+## Step 50: Multi-paragraph installation descriptions
+- **Changed:** `src/data/installations.ts`: `description` can now be one string or an array of strings (`string | string[]`), one string per paragraph.
+- **Changed:** `src/pages/art/installations/[slug].astro`: `paragraphs` turns `description` into a list either way (a single string becomes a one-item list), and each item is drawn as its own `<p class="description">`.
+
+## Step 51: Make Room For All You Need print
+- **Changed:** `src/data/products.ts`: added a print `print-make-room-for-all-you-need` (name "Make Room For All You Need") at the end of the Prints list, so it's at `/shop/prints#print-make-room-for-all-you-need`. Price `40` and size are placeholders, like the other prints.
+- Image: `src/assets/images/products/prints/make-room-for-what-you-need.jpg`, imported as `makeRoomForAllYouNeedImg`. (No file named `make-room-for-all-you-need.jpg` exists; this is the matching file in the prints folder.)
+
+## Step 52: Multi-paragraph product descriptions
+- **Changed:** `src/data/products.ts`: `description` can now be one string or an array of strings (`string | string[]`), one per paragraph. Existing products (single strings) are unchanged.
+- **Changed:** `src/components/ProductDialog.astro`:
+  - At build time, `description` is turned into a list either way (a single string becomes a one-item list) before it's written into the page's JSON.
+  - `#pd-description` is now a `<div>` instead of a `<p>` (a `<p>` can't hold other `<p>`s). The script fills it with one `<p>` per paragraph using `replaceChildren` (swaps out everything inside an element at once).
+  - CSS: the old `.pd-description` spacing moved to `.pd-description :global(p)`. `:global()` is needed because those `<p>`s are made by the script, so Astro's scoped styles wouldn't reach them otherwise.
+
+## Step 53: ArtBubble on the Make Room for All You Need page
+- **Changed:** `src/data/installations.ts`: imported the print's image (`src/assets/images/products/prints/make-room-for-what-you-need.jpg`) as `MakeRoomPrintImg` and added a `bubble` to the `make-room-for-all-you-need` entry: that image, the text "Order this print", and the link `/shop/prints#print-make-room-for-all-you-need`.
+- The part after `#` is the print's `id` from `products.ts`. Each product on `/shop/<slug>` is an `<li id={p.id}>`, so the browser scrolls to it (with `scroll-margin-top: 2rem` leaving a little space above it). It doesn't open the product overlay.
+- No template change was needed: `src/pages/art/installations/[slug].astro` already draws an `ArtBubble` for any entry with a `bubble`.
+
+## Step 54: ArtBubble takes two images
+- **Changed:** `src/components/ArtBubble.astro`: the single `image` prop is replaced by two required props:
+  - `bubbleImage`: shown in the floating 64px circle in the corner (cropped to fill it).
+  - `cardImage`: shown in the card that opens when the circle is clicked (shown whole).
+- **Changed:** `src/data/installations.ts`: `InstallationBubble` has `bubbleImage` and `cardImage` instead of `image`. Both existing bubbles use the same image for both, so they look the same as before: Signs of Well-Being (`SignsImg`) and Make Room for All You Need (`MakeRoomPrintImg`).
+- **Changed:** `src/pages/art/installations/[slug].astro`: passes both images to `<ArtBubble>`.
+
+## Step 55: Door bubble image on Make Room for All You Need
+- **Changed:** `src/data/installations.ts`: imported `src/assets/images/bubbles/door-doorway.jpg` as `DoorDoorwayImg` and set it as the Make Room for All You Need bubble's `bubbleImage` (the floating circle). The opened card still shows the print (`MakeRoomPrintImg`).
+- New folder `src/assets/images/bubbles/` holds images made for bubbles.

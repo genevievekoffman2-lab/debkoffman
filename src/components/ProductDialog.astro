@@ -10,15 +10,19 @@
 //      the JSON, fills in the dialog, and opens it with dialog.showModal().
 //
 // Usage: <ProductDialog products={categoryProducts} />
+//        add naturalShape (e.g. for books) to show the image at its own
+//        proportions instead of inside a square box.
 import { getImage } from 'astro:assets';
 import { formatPrice, type Product, type ProductSpec } from '../data/products';
 import { shopCategories } from '../data/shopCategories';
 
 interface Props {
 	products: Product[];
+	/** Show the image at its natural proportions (no square box). Default: false. */
+	naturalShape?: boolean;
 }
 
-const { products } = Astro.props;
+const { products, naturalShape = false } = Astro.props;
 
 // The overlay's label/value rows: the product's specs (Size, …), then a "Details" row.
 // Details text: the product's own if it has one, otherwise its category's.
@@ -37,7 +41,8 @@ const dialogData = await Promise.all(
 		id: p.id,
 		name: p.name,
 		price: formatPrice(p.price),
-		description: p.description,
+		// Always a list of paragraphs (a single string becomes a one-item list).
+		description: Array.isArray(p.description) ? p.description : [p.description],
 		rows: overlayRows(p),
 		image: p.image ? (await getImage({ src: p.image, width: 900 })).src : null,
 		imageAlt: p.imageAlt ?? '',
@@ -50,7 +55,11 @@ const json = JSON.stringify(dialogData).replace(/</g, '\\u003c');
 
 <script type="application/json" id="product-data" set:html={json} />
 
-<dialog id="product-dialog" class="product-dialog" aria-labelledby="pd-name">
+<dialog
+	id="product-dialog"
+	class:list={['product-dialog', { 'natural-shape': naturalShape }]}
+	aria-labelledby="pd-name"
+>
 	<button type="button" class="pd-close" aria-label="Close">×</button>
 
 	<div class="pd-body">
@@ -62,7 +71,7 @@ const json = JSON.stringify(dialogData).replace(/</g, '\\u003c');
 		<div class="pd-info">
 			<h2 id="pd-name"></h2>
 			<p id="pd-price" class="pd-price"></p>
-			<p id="pd-description" class="pd-description"></p>
+			<div id="pd-description" class="pd-description"></div>
 			<dl id="pd-details" class="pd-details"></dl>
 
 			<form id="pd-form" class="pd-form">
@@ -88,7 +97,7 @@ const json = JSON.stringify(dialogData).replace(/</g, '\\u003c');
 		id: string;
 		name: string;
 		price: string;
-		description: string;
+		description: string[];
 		rows: { label: string; value: string }[];
 		image: string | null;
 		imageAlt: string;
@@ -134,7 +143,13 @@ const json = JSON.stringify(dialogData).replace(/</g, '\\u003c');
 		function fill(p: DialogProduct) {
 			name.textContent = p.name;
 			price.textContent = p.price;
-			description.textContent = p.description;
+			description.replaceChildren(
+				...p.description.map((text) => {
+					const para = document.createElement('p');
+					para.textContent = text;
+					return para;
+				}),
+			);
 
 			if (p.image) {
 				image.src = p.image;
@@ -294,6 +309,17 @@ const json = JSON.stringify(dialogData).replace(/</g, '\\u003c');
 		object-fit: contain;
 		border-radius: 8px;
 	}
+	/* naturalShape (books): the image keeps its own proportions. It fills the
+	   column's width, but never gets taller than the window, so a tall cover
+	   is always fully visible (it shrinks and centers instead of being cut off). */
+	.natural-shape .pd-media img {
+		aspect-ratio: auto;
+		width: auto;
+		max-width: 100%;
+		height: auto;
+		max-height: calc(100dvh - 6rem);
+		margin: 0 auto;
+	}
 	.pd-placeholder {
 		display: grid;
 		place-items: center;
@@ -314,7 +340,8 @@ const json = JSON.stringify(dialogData).replace(/</g, '\\u003c');
 		font-size: 1.25rem;
 		font-weight: 600;
 	}
-	.pd-description {
+	/* Each paragraph is a <p> made by the script, so it needs :global(). */
+	.pd-description :global(p) {
 		margin: 0 0 1rem;
 		line-height: 1.6;
 	}

@@ -24,6 +24,9 @@ interface Props {
 
 const { category } = Astro.props;
 const categoryProducts = products.filter((p) => p.categorySlug === category.slug);
+
+// Book covers keep their own shape (usually taller than wide) instead of a square box.
+const naturalShape = category.slug === 'books';
 ---
 
 <BaseLayout title={category.title}>
@@ -38,7 +41,7 @@ const categoryProducts = products.filter((p) => p.categorySlug === category.slug
 		categoryProducts.length === 0 ? (
 			<p class="empty">Nothing here yet. Check back soon.</p>
 		) : (
-			<ul class="product-grid">
+			<ul class:list={['product-grid', { 'natural-shape': naturalShape }]}>
 				{categoryProducts.map((p) => (
 					// id lets other pages link straight to this product, e.g. /shop/prints#print-sit-with-it-all
 					<li id={p.id}>
@@ -61,7 +64,7 @@ const categoryProducts = products.filter((p) => p.categorySlug === category.slug
 		)
 	}
 
-	<ProductDialog products={categoryProducts} />
+	<ProductDialog products={categoryProducts} naturalShape={naturalShape} />
 </BaseLayout>
 
 <style>
@@ -138,6 +141,15 @@ const categoryProducts = products.filter((p) => p.categorySlug === category.slug
 		transition:
 			transform 0.2s ease,
 			filter 0.2s ease;
+	}
+	/* Books: no square box, so each cover shows at its own proportions.
+	   align-items: end lines up the bottoms of the covers in each row, so the
+	   titles and prices under them stay level even when cover heights differ. */
+	.natural-shape {
+		align-items: end;
+	}
+	.natural-shape .product-image {
+		aspect-ratio: auto;
 	}
 	.product-placeholder {
 		display: grid;

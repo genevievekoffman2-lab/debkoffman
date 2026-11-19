@@ -16,6 +16,21 @@ import type { ImageMetadata } from 'astro';
 import barrelOWordsImg from '../assets/images/products/3x8-notecards/barrel-o-words.jpg';
 import differentViewsImg from '../assets/images/products/3x8-notecards/different-views.jpg';
 import feelingSecureImg from '../assets/images/products/3x8-notecards/feeling-secure.jpg';
+// Book covers
+import someDaysImg from '../assets/images/products/books/some-days-cover.jpg';
+import beingWithABlockImg from '../assets/images/products/books/being-with-a-block-cover.jpg';
+import thisMightBeItImg from '../assets/images/products/books/this-might-be-it-cover.jpg';
+import theBlankPageImg from '../assets/images/products/books/blank-page-cover.jpg';
+import standingImg from '../assets/images/products/books/standing-cover.jpg';
+import theMagicLampImg from '../assets/images/products/books/the-magic-lamp-cover.jpg';
+import onMyWayImg from '../assets/images/products/books/on-my-way-cover.jpg';
+import seeingThingsImg from '../assets/images/products/books/seeing-things-cover.jpg';
+import noticeThisImg from '../assets/images/products/books/notice-this-cover.jpg';
+import facingFearImg from '../assets/images/products/books/fear-cover.jpeg';
+import foodForTheSoulImg from '../assets/images/products/books/food-for-the-soul-cover.jpeg';
+import howToHaveAMarvelousDayImg from '../assets/images/products/books/how-to-have-a-marvelous-day-cover.jpg';
+// Prints
+import makeRoomForAllYouNeedImg from '../assets/images/products/prints/make-room-for-what-you-need.jpg';
 
 /** One label/value row shown in the overlay, e.g. { label: 'Size', value: '3 × 8 in' }. */
 export interface ProductSpec {
@@ -31,7 +46,8 @@ export interface Product {
 	name: string;
 	/** Price in US dollars, e.g. 4.5 for $4.50. */
 	price: number;
-	description: string;
+	/** One string, or an array of strings (one per paragraph). */
+	description: string | string[];
 	/** Product photo, imported from src/assets/images/products/. Optional. */
 	image?: ImageMetadata;
 	imageAlt?: string;
@@ -239,38 +255,114 @@ export const products: Product[] = [
 	},
 
 	// ---- Books ----
+	// Prices are placeholders (0) except The Magic Lamp.
 	{
-		id: 'book-1',
+		id: 'some-days',
 		categorySlug: 'books',
-		name: '[Book Title 1]',
-		price: 18,
-		description: '[Placeholder description of this book.]',
-		specs: [
-			{ label: 'Pages', value: '[Pages]' },
-			{ label: 'Format', value: '[Paperback / Hardcover]' },
-		],
+		name: 'Some Days',
+		price: 0,
+		description: '[Description of Some Days]',
+		image: someDaysImg,
+		imageAlt: 'Cover of Some Days',
 	},
 	{
-		id: 'book-2',
+		id: 'being-with-a-block',
 		categorySlug: 'books',
-		name: '[Book Title 2]',
-		price: 18,
-		description: '[Placeholder description of this book.]',
-		specs: [
-			{ label: 'Pages', value: '[Pages]' },
-			{ label: 'Format', value: '[Paperback / Hardcover]' },
-		],
+		name: 'Being With A Block',
+		price: 0,
+		description: '[Description of Being With A Block]',
+		image: beingWithABlockImg,
+		imageAlt: 'Cover of Being With A Block',
 	},
 	{
-		id: 'book-3',
+		id: 'this-might-be-it',
 		categorySlug: 'books',
-		name: '[Book Title 3]',
-		price: 18,
-		description: '[Placeholder description of this book.]',
-		specs: [
-			{ label: 'Pages', value: '[Pages]' },
-			{ label: 'Format', value: '[Paperback / Hardcover]' },
-		],
+		name: 'This Might Be IT.',
+		price: 0,
+		description: '[Description of This Might Be IT.]',
+		image: thisMightBeItImg,
+		imageAlt: 'Cover of This Might Be IT.',
+	},
+	{
+		id: 'the-blank-page',
+		categorySlug: 'books',
+		name: 'The Blank Page',
+		price: 0,
+		description: '[Description of The Blank Page]',
+		image: theBlankPageImg,
+		imageAlt: 'Cover of The Blank Page',
+	},
+	{
+		id: 'standing',
+		categorySlug: 'books',
+		name: 'Standing',
+		price: 0,
+		description: '[Description of Standing]',
+		image: standingImg,
+		imageAlt: 'Cover of Standing',
+	},
+	{
+		id: 'the-magic-lamp',
+		categorySlug: 'books',
+		name: 'The Magic Lamp',
+		price: 16.95,
+		description: '[Description of The Magic Lamp]',
+		image: theMagicLampImg,
+		imageAlt: 'Cover of The Magic Lamp',
+	},
+	{
+		id: 'on-my-way',
+		categorySlug: 'books',
+		name: 'On My Way',
+		price: 0,
+		description: '[Description of On My Way]',
+		image: onMyWayImg,
+		imageAlt: 'Cover of On My Way',
+	},
+	{
+		id: 'seeing-things',
+		categorySlug: 'books',
+		name: 'Seeing Things',
+		price: 0,
+		description: '[Description of Seeing Things]',
+		image: seeingThingsImg,
+		imageAlt: 'Cover of Seeing Things',
+	},
+	{
+		id: 'notice-this',
+		categorySlug: 'books',
+		name: 'Notice This.',
+		price: 0,
+		description: '[Description of Notice This.]',
+		image: noticeThisImg,
+		imageAlt: 'Cover of Notice This.',
+	},
+	{
+		id: 'facing-fear',
+		categorySlug: 'books',
+		name: 'Facing Fear',
+		price: 0,
+		description: '[Description of Facing Fear]',
+		image: facingFearImg,
+		imageAlt: 'Cover of Facing Fear',
+	},
+	{
+		id: 'food-for-the-soul',
+		categorySlug: 'books',
+		name: 'Food For The Soul',
+		price: 0,
+		description: '[Description of Food For The Soul]',
+		image: foodForTheSoulImg,
+		imageAlt: 'Cover of Food For The Soul',
+	},
+	{
+		id: 'how-to-have-a-marvelous-day',
+		categorySlug: 'books',
+		name: 'How To Have A Marvelous Day',
+		price: 0,
+		description: '[Description of How To Have A Marvelous Day]',
+		image: howToHaveAMarvelousDayImg,
+		imageAlt: 'Cover of How To Have A Marvelous Day',
 	},
 
 	// ---- Prints ----
@@ -463,6 +555,21 @@ export const products: Product[] = [
 		description: '[Placeholder description of this print.]',
 		specs: [
 			{ label: 'Size', value: '[Print size]' },
+		],
+	},
+	{
+		id: 'print-make-room-for-all-you-need',
+		categorySlug: 'prints',
+		name: 'Make Room For All You Need',
+		price: 40,
+		description: [
+			'These doors are a reminder that my feelings  and needs matter.  I need a space, a place, time to be with them, experience them.  Anger is as valuable as dreaming, as valuable as making mistakes, as valuable as not knowing. Being with them shows me what they have to offer me.  They each serve me in some way.',
+			'I can’t always be ‘perfect’ and ‘certain’ and ‘happy’.  For me, being a functional, resourceful, creative human being means accepting, respecting, making room for all parts of me.',
+		],
+		image: makeRoomForAllYouNeedImg,
+		imageAlt: 'Make Room For All You Need print',
+		specs: [
+			{ label: 'Size', value: '8.5×11' },
 		],
 	},
 ];

@@ -20,12 +20,15 @@ interface Props {
 }
 
 const { installation: item } = Astro.props;
+
+// description can be one string or a list of paragraphs; make it always a list.
+const paragraphs = Array.isArray(item.description) ? item.description : [item.description];
 ---
 
 <BaseLayout title={item.title}>
 	<article class="installation-page">
 		<h1>{item.title}</h1>
-		<p class="description">{item.description}</p>
+		{paragraphs.map((text) => <p class="description">{text}</p>)}
 
 		{
 			item.photos && item.photos.length > 0 ? (
@@ -52,7 +55,14 @@ const { installation: item } = Astro.props;
 		<a class="back-link" href="/art/installations">← Back to Installations &amp; Booths</a>
 	</article>
 
-	{item.bubble && <ArtBubble image={item.bubble.image} text={item.bubble.text} href={item.bubble.href} />}
+	{item.bubble && (
+		<ArtBubble
+			bubbleImage={item.bubble.bubbleImage}
+			cardImage={item.bubble.cardImage}
+			text={item.bubble.text}
+			href={item.bubble.href}
+		/>
+	)}
 </BaseLayout>
 
 <style>
