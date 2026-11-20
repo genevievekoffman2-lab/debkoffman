@@ -48,14 +48,29 @@ import StoryMap from '../components/StoryMap.astro';
 </BaseLayout>
 
 <style>
+	/* The whole page below the wall is Deb's purple floor: the article is
+	   full bleed (full screen width, same trick as StoryMap) and purple, so the
+	   floor runs on under the blessings note and the house card to the bottom.
+	   margin-bottom: -1.5rem cancels <main>'s bottom padding so no cream strip
+	   shows under it. */
 	.about {
-		padding-bottom: 3rem;
+		--floor: #8b08a2; /* same purple as StoryMap's floor */
+		background: var(--floor);
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
+		margin-bottom: -1.5rem;
+		padding: 0 1.5rem 3rem;
+		box-sizing: border-box;
 	}
 	/* Deb's painted room (StoryMap) starts right under the header: pull it up by
-	   <main>'s 1.5rem top padding. :global() lets this page's CSS reach a class
-	   that lives inside the StoryMap component. */
+	   <main>'s 1.5rem top padding. Its own margins are zeroed out so its purple
+	   floor flows straight into the article's purple with no gap.
+	   :global() lets this page's CSS reach a class inside the StoryMap component. */
 	.about > :global(.story-map) {
 		margin-top: -1.5rem;
+		margin-bottom: 0;
+		margin-left: -1.5rem; /* undo the article's side padding: room stays edge to edge */
+		width: 100vw;
 	}
 	.page-title {
 		text-align: center;
@@ -114,8 +129,11 @@ import StoryMap from '../components/StoryMap.astro';
 	/* 3 + 6: text column on the left, image column on the right. */
 	.story {
 		display: grid;
-		grid-template-columns: minmax(0, 65ch) minmax(0, 420px);
-		justify-content: center; /* center the pair on wide screens */
+		/* One centered column: the story text is gone for now, so only the
+		   blessings note is here. (Add a minmax(0, 65ch) column back first if the
+		   text returns.) */
+		grid-template-columns: minmax(0, 480px);
+		justify-content: center; /* center the column on the page */
 		align-items: start; /* both columns start at the top */
 		gap: 3rem;
 		margin: 0 auto 3rem;
@@ -154,6 +172,7 @@ import StoryMap from '../components/StoryMap.astro';
 	}
 	.house-link-text {
 		display: inline-block;
+		color: #fef8e7; /* cream, readable on the purple floor */
 		font-size: 1.25rem;
 		font-weight: 600;
 		padding-bottom: 0.75rem;

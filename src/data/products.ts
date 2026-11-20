@@ -32,6 +32,9 @@ import howToHaveAMarvelousDayImg from '../assets/images/products/books/how-to-ha
 // Prints
 import makeRoomForAllYouNeedImg from '../assets/images/products/prints/make-room-for-what-you-need.jpg';
 
+import originalSoulSupportImg from '../assets/images/products/soul-support/soul-support-cover.jpg';
+import extraSoulSupportImg from '../assets/images/products/soul-support/extra-cover.jpg';
+
 /** One label/value row shown in the overlay, e.g. { label: 'Size', value: '3 × 8 in' }. */
 export interface ProductSpec {
 	label: string;
@@ -230,21 +233,27 @@ export const products: Product[] = [
 	{
 		id: 'soul-support-deck',
 		categorySlug: 'soul-support',
-		name: '[Soul Support Card Deck]',
-		price: 25,
-		description: '[Placeholder description of the Soul Support deck.]',
+		name: 'Original Soul Support Cards',
+		price: 10,
+		description: [
+			'Use to get unstuck, expand your awareness, open your heart.  Put in drawers, pockets, your friend’s pocket.  Anywhere that supports your soul.',
+			'Focus on a goal, a problem, a situation that isn’t working…choose 1 or more cards and take the messages to heart.',
+			'Makes a great gift for coaching clients, artists, yoga practitioners. Put them in doctors’ offices, at the reception desk in hotels, spas, healing centers.  Give them to the toll booth attendant, leave on the table for your waiter, sneak them into books on your bookshelf.'
+		],
 		specs: [
 			{ label: 'Cards', value: '[Number of cards]' },
-			{ label: 'Size', value: '[Card size]' },
+			{ label: 'Size', value: 'size of pack of gum' },
 		],
+		image: originalSoulSupportImg,
 	},
 	{
-		id: 'soul-support-single',
+		id: 'extra-soul-support-deck',
 		categorySlug: 'soul-support',
-		name: '[Soul Support Single Card]',
-		price: 4,
-		description: '[Placeholder description of a single Soul Support card.]',
-		specs: [{ label: 'Size', value: '[Card size]' }],
+		name: 'Extra Soul Support Cards',
+		price: 10,
+		description: '42 messages to lift your spirits and open your heart.  Comes with 2 blanks for your own message of support.  The size of a pack of gum, 1×3 comes in multicolorbrite stock…orange, gold, purple, lime green and red.  Color covers in orange, gold, purple, lime and red.  Wrapped in cellophane sleeve so you can carry them with you!!!!',
+		specs: [{ label: 'Size', value: 'size of pack of gum' }],
+		image: extraSoulSupportImg,
 	},
 	{
 		id: 'soul-support-gift-set',

@@ -788,3 +788,101 @@ A running log of what was built and why. Newest at the bottom.
   - The glows' `mix-blend-mode: multiply` still works: the filter makes `.frame` its own "group", and the glows blend with the map and frame inside it.
 - **The text panel:** text on a cream card (rounded, soft shadow); buttons below on the wall, now with a solid cream background so their labels don't get lost in the scribbles.
 - **≤ 900px:** one column, framed map first (`order: -1`), then card, then buttons; wall and floor still behind.
+
+## About Deb: purple floor covers the rest of the page
+- `src/pages/about.astro`: the `.about` article is now full bleed (100vw wide)
+  with Deb's floor purple (#8b08a2) as its background, so the purple under the
+  Map of the Territory continues down behind the blessings note and the house
+  card to the bottom of the page.
+- StoryMap's own bottom margin is zeroed on this page so there's no cream gap
+  between its floor and the article's purple; `margin-bottom: -1.5rem` cancels
+  `<main>`'s bottom padding so no cream strip shows at the very bottom.
+- "Come see Deb's house →" text is now cream so it's readable on purple.
+- Blessings image centered: `.story` grid is now one centered 480px column
+  (it had an empty 65ch text column pushing the image to the left).
+
+## Soul Support: "Draw a card"
+- New component `src/components/SoulSupportDraw.astro`, shown at the top of
+  `/shop/soul-support` (added in `src/pages/shop/[slug].astro`, only for that slug).
+- Card list: `src/data/soulSupportCards.ts`. Photos are found automatically with
+  `import.meta.glob` (a Vite feature that finds all files matching a pattern at
+  build time) at `src/assets/images/products/soul-support/<id>.jpg`; the pack at
+  `src/assets/images/products/soul-support/pack.jpg` (.png/.jpeg also work). Missing photo → card shows its text
+  on paper; missing pack → pink placeholder box.
+- `getImage()` makes optimized .webp URLs; the browser script swaps them into one
+  `<img>`, so only the drawn card's photo is downloaded.
+- Slide: the card sits behind the pack (z-index) pushed down with
+  `translateY(134%)`; adding `.is-out` moves it to `translateY(0) rotate(-3deg)`
+  with a CSS transition. Overshoot curve on the way out, plain ease-in going back.
+- Random: picks from the other n-1 cards, so never the same card twice in a row.
+- Accessibility: card text is the alt text; an `aria-live="polite"` region
+  (screen readers read new text in it without moving focus) announces the card.
+  Reduced motion → fade only.
+- "Get the pack →" links to `/shop/soul-support#soul-support-deck`; the build
+  fails if that product id is ever renamed.
+- Fix: photos showed fallback text because the glob pointed at
+  `soul-support/cards/`; the files live in `products/soul-support/` (per the
+  folder convention), and the pack is .jpg not .png.
+
+## Soul Support draw: bigger pack, no box
+- The "box" around the pack was the photo's own black background (JPGs can't be
+  transparent). Made `products/soul-support/pack.png` from it with Python/Pillow:
+  flood-filled the black from the corners to transparent and trimmed to the pack
+  (1642x724). Original kept as `pack-original.jpg` (not used by the site).
+- Pack is now 420px wide on desktop (shrinks on phones, same proportions), with
+  no background/border/shadow. Hover/focus: lifts 6px and tilts -1.5deg.
+- Stage math redone for the new pack shape: card is 84% of the pack width and
+  hides centered behind it (`translateY(122%)`), then slides out the top.
+- Removed `pack.png` (the pack photo wasn't displaying correctly for Genevieve).
+  The pack now shows the pink "Soul Support Cards" placeholder at the same size
+  and shape. `pack-original.jpg` is kept but unused.
+
+## Soul Support draw: glass bowl instead of the pack
+- `SoulSupportDraw.astro` now uses `src/assets/images/products/soul-support/bowl.png`
+  (670x731, transparent), shown 380px wide on desktop, shrinking on phones.
+  Label: "Tap the bowl to draw a card".
+- New layout, sized by its contents (no fixed height): a "slot" above the bowl
+  with `overflow: hidden`, then the bowl pulled up (`margin-top: -9%`) so the
+  slot's bottom edge lines up with the bowl's open top. The card is clipped by
+  the slot, so "inside the bowl" = cut off below the rim. The bowl is never clipped.
+- Card hidden: `translateY(115%) scale(0.7)` (below the rim line, small enough
+  to fit through the rim). Drawn: `translateY(0) scale(1) rotate(-3deg)`.
+- Hover/focus: `bowl-wiggle` keyframe animation (a few small rotations, pivoting
+  on the base). Off for reduced motion.
+- Tested in headless Chrome at 1280px and 390px: only the bowl on load; 3 draws,
+  each a different card photo, announced via aria-live.
+
+## Soul Support draw: three-column layout + rise-and-arc
+- Desktop: grid `1fr 380px 1fr` (areas: card | bowl | info). Equal side
+  columns keep the bowl dead center. Below 900px: one column, card landing
+  spot on top, bowl, then words.
+- The card sits at its landing spot (`.landing`). On draw, the script measures
+  the bowl's rim (RIM = 8% down the photo) relative to the landing spot and plays
+  a Web Animations API (`element.animate()`) flight back from the rim:
+  - `.fly-x` (outer) animates only sideways: holds over the bowl for the first
+    40%, then glides to the landing spot.
+  - `.card` (inner) animates up/down, size, tilt and `clip-path`: rises straight
+    out of the rim at 75% size (clip-path bottom inset 100% → 0 in step with the
+    movement, so only the part above the rim shows), up to an arc peak, then
+    down to land at full size tilted `--land-tilt` (-5deg desktop, -3deg phones).
+  - Separate timing for sideways vs. up/down is what makes the path curve.
+- 0.8s total. "Draw another": old card slides down 24px and fades (0.28s), then
+  the next flies. Reduced motion: fade in/out at the landing spot only.
+- Tested in headless Chrome at 1280 and 390, freezing the flight at exact times
+  (`document.getAnimations()` + `currentTime`) to check each stage.
+- Removed the "Draw another ↻" button: tapping the bowl again draws the next
+  card (the old one fades away first, same as before).
+- Removed "There are 42 more where that came from" and "Get the pack →", and
+  with them the productId prop and products.ts lookup (nothing else used them).
+- `src/pages/shop/[slug].astro`: no "← Back to Shop" link on the Soul Support
+  page (other category pages keep it).
+
+## Soul Support draw: card back above the bowl, bowl at the screen bottom
+- Desktop grid areas now `'. card .' / '. bowl info'`: the card lands straight
+  above the centered bowl (as on phones); the words stay to the right. With no
+  sideways distance, the same animation is a straight rise and settle; the
+  overshoot above the landing spot is now 16px (was 40px). Tilt -3deg.
+- `fitToScreen()` in the script: measures the bowl's bottom on the page and sets
+  `--push` (the section's padding-top) so the bowl's bottom edge touches the
+  bottom of the screen on load. Re-measured on window resize. On screens too
+  short to fit everything, push is 0 and the bowl simply runs past the bottom.

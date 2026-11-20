@@ -8,6 +8,7 @@ import type { GetStaticPaths } from 'astro';
 import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductDialog from '../../components/ProductDialog.astro';
+import SoulSupportDraw from '../../components/SoulSupportDraw.astro';
 import { shopCategories, type ShopCategory } from '../../data/shopCategories';
 import { products, formatPrice } from '../../data/products';
 
@@ -30,12 +31,18 @@ const naturalShape = category.slug === 'books';
 ---
 
 <BaseLayout title={category.title}>
-	<p class="back">
-		<a class="back-link" href="/shop">← Back to Shop</a>
-	</p>
+	{/* "Back to Shop" on every category except Soul Support, which opens with the bowl. */}
+	{category.slug !== 'soul-support' && (
+		<p class="back">
+			<a class="back-link" href="/shop">← Back to Shop</a>
+		</p>
+	)}
 
 	<header class="category-header"> 
 	</header>
+
+	{/* Soul Support only: "draw a card" sits above the products. */}
+	{category.slug === 'soul-support' && <SoulSupportDraw />}
 
 	{
 		categoryProducts.length === 0 ? (
