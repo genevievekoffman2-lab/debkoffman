@@ -28,21 +28,30 @@ const categoryProducts = products.filter((p) => p.categorySlug === category.slug
 
 // Book covers keep their own shape (usually taller than wide) instead of a square box.
 const naturalShape = category.slug === 'books';
+
+// Soul Support: two columns, "draw a card" on the left, products on the right.
+const isSoulSupport = category.slug === 'soul-support';
 ---
 
 <BaseLayout title={category.title}>
 	{/* "Back to Shop" on every category except Soul Support, which opens with the bowl. */}
-	{category.slug !== 'soul-support' && (
+	{!isSoulSupport && (
 		<p class="back">
 			<a class="back-link" href="/shop">← Back to Shop</a>
 		</p>
 	)}
 
-	<header class="category-header"> 
-	</header>
+	{/* Skipped on Soul Support so the bowl starts near the top. */}
+	{!isSoulSupport && <header class="category-header" />}
 
-	{/* Soul Support only: "draw a card" sits above the products. */}
-	{category.slug === 'soul-support' && <SoulSupportDraw />}
+	{/* On Soul Support this becomes a two-column grid (.two-col): the draw on the
+	    left, the products on the right. On other pages it's a plain wrapper. */}
+	<div class:list={['category-body', { 'two-col': isSoulSupport }]}>
+	{isSoulSupport && (
+		<div class="draw-col">
+			<SoulSupportDraw />
+		</div>
+	)}
 
 	{
 		categoryProducts.length === 0 ? (
@@ -70,6 +79,7 @@ const naturalShape = category.slug === 'books';
 			</ul>
 		)
 	}
+	</div>
 
 	<ProductDialog products={categoryProducts} naturalShape={naturalShape} />
 </BaseLayout>
@@ -120,6 +130,52 @@ const naturalShape = category.slug === 'books';
 		.product-grid {
 			grid-template-columns: 1fr;
 			max-width: 360px;
+		}
+	}
+
+	/* ---------- SOUL SUPPORT: two columns ----------
+	   Left (45%): the card draw, sticky, so the bowl stays in view while the
+	   products scroll past. Right (55%): the products, stacked.
+	   align-items: start is needed for sticky to work: otherwise the left
+	   column stretches to the full height of the row and has nowhere to stick.
+	   (The header isn't sticky, it scrolls away, so "top" is just a small gap
+	   from the top of the screen.) */
+	@media (min-width: 901px) {
+		.two-col {
+			display: grid;
+			grid-template-columns: 45fr 55fr;
+			align-items: start;
+			gap: 3rem;
+		}
+		.draw-col {
+			position: sticky;
+			top: 1.5rem;
+		}
+		.two-col .product-grid {
+			margin: 0 auto 3rem;
+		}
+	}
+	/* Soul Support products: stacked, one above the other, at every width.
+	   Sized so both fit on the screen right when the page loads, header
+	   included. Everything that isn't a photo adds up to about 23rem: the
+	   header (~165px) + page padding + 2 x name/price (~4rem each) + the
+	   1.5rem gap between them. Each photo is as wide as it is tall, so its
+	   size = (screen height - 23rem) / 2. vh = 1% of the screen height.
+	   Only the photo shrinks; the name and price keep the full column width
+	   so they stay on one line. Never bigger than 420px. */
+	.two-col .product-grid {
+		grid-template-columns: minmax(0, 1fr);
+		row-gap: 1.5rem;
+		max-width: 420px;
+	}
+	.two-col .product-image {
+		width: min(100%, calc((100vh - 23rem) / 2));
+		margin: 0 auto;
+	}
+	/* Under 900px: stacked, draw first, products below. */
+	@media (max-width: 900px) {
+		.draw-col {
+			margin-bottom: 3rem;
 		}
 	}
 

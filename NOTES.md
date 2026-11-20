@@ -886,3 +886,52 @@ A running log of what was built and why. Newest at the bottom.
   `--push` (the section's padding-top) so the bowl's bottom edge touches the
   bottom of the screen on load. Re-measured on window resize. On screens too
   short to fit everything, push is 0 and the bowl simply runs past the bottom.
+
+## Soul Support page: two columns, sticky draw
+- `src/pages/shop/[slug].astro`: on Soul Support only, a `.two-col` grid
+  (`45fr 55fr`; `fr` = a share of the leftover width). Left `.draw-col` holds
+  SoulSupportDraw and is `position: sticky; top: 1.5rem` (sticky = scrolls
+  normally until it reaches that gap from the top of the screen, then stays put
+  until its row ends). `align-items: start` is required, or the column stretches
+  to the row's full height and has nowhere to stick. The header isn't sticky,
+  so `top` is just a small gap. Right column: product grid, 2 across. Under
+  900px: stacked, draw first, normal product-grid rules, no sticky.
+  The empty `.category-header` is skipped on Soul Support.
+- `src/components/SoulSupportDraw.astro`: now one centered flex column:
+  heading + hint, card landing spot, bowl, then `.after`.
+  - Removed the `.fly-x` wrapper and its sideways animation: the card only rises
+    out of the rim and settles above the bowl.
+  - Removed `fitToScreen()` / `--push` (the big empty space above the bowl).
+  - `.after` (hidden with `visibility` until the first draw, so its space is kept
+    and nothing jumps): "Draw another ↻" (calls the same `draw()`), "There are
+    42 more where that came from", and "Get the pack →", a button with
+    `data-product-id="soul-support-deck"`, which ProductDialog's existing click
+    handler picks up to open the deck's overlay.
+- Card images, random draw, alt text and aria-live unchanged.
+- Follow-up: Soul Support products now stack (1 column, max 420px wide,
+  centered in the right column) at every width, instead of 2 across.
+- Follow-up: removed "Draw another ↻", "There are 42 more…" and "Get the pack →"
+  again (markup, CSS and script); tapping the bowl is the only way to draw.
+- Stacked products sized to the screen height:
+  `max-width: min(420px, calc((100vh - 15rem) / 2))`, so both photos plus names
+  and prices fit in one screen (once the header has scrolled away).
+- Follow-up: title is now "Tap the bowl to draw a Soul Support Card"; the
+  "Tap the bowl to draw a card." subtitle (`.hint`) is removed.
+- Stacked products now fit on load, header included: only the photo shrinks,
+  `width: min(100%, calc((100vh - 23rem) / 2))` on `.two-col .product-image`
+  (the name and price keep the column width so they stay on one line);
+  row gap 1.5rem.
+
+## About page: Deb's painted table beside the blessings note
+- Moved `public/images/about/table-deb.jpg` → `src/assets/images/about/table-deb.jpg`
+  (so Astro optimizes it, per the image convention). Nothing referenced the old path.
+- `src/pages/about.astro`: `.story` is now two centered columns
+  (`repeat(2, minmax(0, 480px))`): blessings note | table picture (`.table-deb`,
+  rounded corners). `align-items: center` lines the square picture up with the
+  middle of the tall note. Under 900px they stack, each max 480px wide.
+- Follow-up: `.table-deb` has a bold black border (6px, `box-sizing: border-box`) and a soft shadow (`box-shadow: 0 6px 16px rgba(0,0,0,0.25)`).
+
+## Home page: Deb in her striped apron
+- `src/pages/index.astro`: the intro photo is now
+  `src/assets/images/about/deb_apron.png` (706x1080, tall) instead of
+  `aunt_debby.jpg`, with new alt text. Still 200px wide (about 306px tall).

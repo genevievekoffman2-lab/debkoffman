@@ -254,14 +254,7 @@ export const products: Product[] = [
 		description: '42 messages to lift your spirits and open your heart.  Comes with 2 blanks for your own message of support.  The size of a pack of gum, 1×3 comes in multicolorbrite stock…orange, gold, purple, lime green and red.  Color covers in orange, gold, purple, lime and red.  Wrapped in cellophane sleeve so you can carry them with you!!!!',
 		specs: [{ label: 'Size', value: 'size of pack of gum' }],
 		image: extraSoulSupportImg,
-	},
-	{
-		id: 'soul-support-gift-set',
-		categorySlug: 'soul-support',
-		name: '[Soul Support Gift Set]',
-		price: 35,
-		description: '[Placeholder description of the gift set.]',
-	},
+	}, 
 
 	// ---- Books ----
 	// Prices are placeholders (0) except The Magic Lamp.

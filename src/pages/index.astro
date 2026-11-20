@@ -2,7 +2,7 @@
 // index.astro → the Home page, served at "/"
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import debPhoto from '../assets/images/about/aunt_debby.jpg';
+import debPhoto from '../assets/images/about/deb_apron.png';
 import FilmReel from '../components/FilmReel.astro';
 import { leftReel, rightReel, getReelImages } from '../data/filmReels';
 ---
@@ -17,7 +17,7 @@ import { leftReel, rightReel, getReelImages } from '../data/filmReels';
 
 		<!-- Short intro to Deb and her work -->
 		<section class="intro">
-			<Image src={debPhoto} alt="Deb Koffman" width={200} widths={[200, 400]} sizes="200px" class="deb-photo" />
+			<Image src={debPhoto} alt="Deb Koffman smiling in a black-and-white striped apron, holding up a giant hand-drawn yellow pencil" width={200} widths={[200, 400]} sizes="200px" class="deb-photo" />
 			
 			<h1>Deb Koffman (1956-2021)</h1>
 			

@@ -1,6 +1,7 @@
 ---
 // SoulSupportDraw.astro → "Draw a Soul Support card": tap the glass bowl, a card
-// rises up out of it and settles just above it. Used at the top of /shop/soul-support (and can go anywhere else).
+// rises up out of it and settles just above it. One centered column (words, card spot, bowl); used as the
+// sticky left column of /shop/soul-support (and can go anywhere else).
 //
 // Images (found automatically, nothing to register):
 //   src/assets/images/products/soul-support/<card id>.jpg  (1200x500)
@@ -44,20 +45,18 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 ---
 
 <section class="soul-draw" aria-labelledby="soul-draw-title" data-cards={JSON.stringify(cards)}>
-	<!-- ABOVE THE BOWL: where the drawn card lands.
-	     .fly-x moves the card sideways and .card moves it up/down. (The card now
-	     lands straight above the bowl, so .fly-x has no distance to travel; it's
-	     kept so a sideways landing spot would still work.) -->
+	<!-- TOP: the title. -->
+	<h2 id="soul-draw-title">Tap the Bowl to Draw a Card</h2>
+
+	<!-- ABOVE THE BOWL: where the drawn card settles. -->
 	<div class="landing">
-		<div class="fly-x">
-			<div class="card">
-				<img class="card-img" alt="" hidden />
-				<p class="card-text" hidden></p>
-			</div>
+		<div class="card">
+			<img class="card-img" alt="" hidden />
+			<p class="card-text" hidden></p>
 		</div>
 	</div>
 
-	<!-- CENTER: the bowl. .bowl-area never moves, so we can measure it even
+	<!-- The bowl. .bowl-area never moves, so we can measure it even
 	     while the bowl itself is wiggling. -->
 	<div class="bowl-area">
 		<button type="button" class="bowl" aria-label="Tap the bowl to draw a card">
@@ -75,14 +74,8 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 		</button>
 	</div>
 
-	<!-- RIGHT (desktop) / BOTTOM (phones): the words. -->
-	<div class="info">
-		<h2 id="soul-draw-title">Draw a Soul Support card</h2>
-		<p class="hint">Tap the bowl to draw a card.</p>
-
-		<!-- Screen readers announce whatever text goes in here, without moving focus. -->
-		<p class="sr-only" aria-live="polite"></p>
-	</div>
+	<!-- Screen readers announce whatever text goes in here, without moving focus. -->
+	<p class="sr-only" aria-live="polite"></p>
 </section>
 
 <style>
@@ -90,32 +83,24 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 		--card-shadow: 0 6px 16px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.12);
 		--land-tilt: -3deg; /* how tilted the card lands (read by the script too) */
 
-		/* Desktop: three columns. The side columns are both 1fr (equal shares of
-		   the leftover space), so the 380px bowl column is always dead center.
-		   Row 1: the card's landing spot, above the bowl. Row 2: bowl + words.
-		   ('.' = an empty cell.) */
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 380px) minmax(0, 1fr);
-		grid-template-areas:
-			'. card .'
-			'. bowl info';
+		/* One column, everything centered: words, card spot, bowl, links. */
+		display: flex;
+		flex-direction: column;
 		align-items: center;
-		gap: 0.75rem 2rem; /* rows, columns */
-		margin: 0 auto 3rem;
-		/* Extra space on top, set by the script, so the bottom of the bowl
-		   touches the bottom of the screen when the page loads. */
-		padding-top: var(--push, 0px);
+		gap: 0.75rem;
+		text-align: center;
+	}
+	.soul-draw h2 {
+		margin: 0;
 	}
 
 	/* ---------- THE LANDING SPOT (above the bowl) ---------- */
 	/* Hidden until the first draw; the script adds .is-showing. Its space is
 	   always reserved, so nothing jumps when a card appears. */
 	.landing {
-		grid-area: card;
 		position: relative;
 		z-index: 3; /* the card is in FRONT of the bowl */
-		width: min(85%, 320px);
-		justify-self: center;
+		width: min(100%, 320px);
 		visibility: hidden;
 	}
 	.landing.is-showing {
@@ -156,12 +141,11 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 		display: none;
 	}
 
-	/* ---------- THE BOWL (center) ---------- */
+	/* ---------- THE BOWL ---------- */
 	.bowl-area {
-		grid-area: bowl;
 		position: relative;
 		z-index: 1;
-		width: 100%;
+		width: min(100%, 380px); /* shrinks to fit on phones */
 	}
 	.bowl {
 		display: block;
@@ -222,18 +206,6 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 		line-height: 1.2;
 	}
 
-	/* ---------- THE WORDS (right) ---------- */
-	.info {
-		grid-area: info;
-	}
-	.info h2 {
-		margin: 0 0 0.5rem;
-	}
-	.hint {
-		margin: 0;
-		color: #5a5347;
-	}
-
 	/* Visually hidden, but still read by screen readers. */
 	.sr-only {
 		position: absolute;
@@ -244,26 +216,7 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 		white-space: nowrap;
 	}
 
-	/* ---------- PHONES & NARROW SCREENS: one column ----------
-	   Card landing spot on top, bowl centered below it, words below the bowl
-	   (below the bottom of the screen until you scroll). */
-	@media (max-width: 900px) {
-		.soul-draw {
-			grid-template-columns: minmax(0, 1fr);
-			grid-template-areas:
-				'card'
-				'bowl'
-				'info';
-			gap: 1.25rem;
-			text-align: center;
-		}
-		.bowl-area {
-			max-width: 380px; /* shrinks to the screen width on phones */
-			justify-self: center;
-		}
-	}
-
-	/* REDUCED MOTION: no wiggle. (The script also skips the flight and just
+	/* REDUCED MOTION: no wiggle. (The script also skips the rise and just
 	   fades the card in at its landing spot.) */
 	@media (prefers-reduced-motion: reduce) {
 		.bowl:hover,
@@ -290,7 +243,6 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 	document.querySelectorAll<HTMLElement>('.soul-draw').forEach((root) => {
 		const cards: DrawCard[] = JSON.parse(root.dataset.cards ?? '[]');
 		const landing = root.querySelector<HTMLElement>('.landing')!;
-		const flyX = root.querySelector<HTMLElement>('.fly-x')!;
 		const card = root.querySelector<HTMLElement>('.card')!;
 		const img = root.querySelector<HTMLImageElement>('.card-img')!;
 		const text = root.querySelector<HTMLElement>('.card-text')!;
@@ -345,7 +297,7 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 			away.cancel(); // drop the faded-out state; the card is hidden anyway
 		}
 
-		// The rise-and-arc: from inside the bowl's rim to the landing spot.
+		// The rise: straight up out of the bowl's rim to the landing spot above it.
 		async function cardIn() {
 			landing.classList.add('is-showing');
 
@@ -361,36 +313,22 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 			const h = card.offsetHeight; // the card's height at full size
 			const s = RISE_SCALE;
 			const sh = s * h; // its height while squeezing through the rim
-			const rimX = B.left + B.width / 2;
 			const rimY = B.top + B.height * RIM;
-			const landX = L.left + L.width / 2;
 			const landY = L.top + L.height / 2;
 
 			// Card-center offsets from its landing spot (0 = landed):
-			const dx = rimX - landX; // sideways distance from the bowl's middle
 			const startY = rimY + sh / 2 - landY; // top edge at the rim: all of it inside the bowl
 			const outY = rimY - sh / 2 - landY; // bottom edge at the rim: just out
 			const peakY = Math.min(outY, 0) - 16; // a little past the landing spot, then settle
 
 			const DURATION = 800;
 
-			// SIDEWAYS (outer element): stay over the bowl for the straight rise (first
-			// 40%), then glide over to the landing spot.
-			flyX.animate(
-				[
-					{ offset: 0, transform: `translateX(${dx}px)` },
-					{ offset: 0.4, transform: `translateX(${dx}px)`, easing: 'cubic-bezier(0.45, 0, 0.35, 1)' },
-					{ offset: 1, transform: 'translateX(0)' },
-				],
-				{ duration: DURATION },
-			);
-
-			// UP/DOWN + tilt + size + rim mask (inner element):
+			// UP/DOWN + tilt + size + rim mask:
 			//  0 → 40%: rise straight up out of the rim. clip-path's bottom inset goes
 			//           100% → 0 in step with the movement, so exactly the part of the
 			//           card that's above the rim shows; the part still "inside the
 			//           bowl" is masked. (Only the card is masked, never the bowl.)
-			// 40 → 65%: keep rising to the top of the arc, starting to tip over.
+			// 40 → 65%: keep rising a little past the landing spot, starting to tip.
 			// 65 → 100%: settle down onto the landing spot, grow to full size, tilt.
 			// The -40px sides/top of the mask leave room for the card's shadow.
 			const card_ = card.animate(
@@ -444,19 +382,5 @@ const bowl = bowlImage ? await getImage({ src: bowlImage, width: 760, format: 'w
 		}
 
 		bowlBtn.addEventListener('click', draw);
-
-		// BOWL TOUCHES THE BOTTOM OF THE SCREEN: measure where the bowl's bottom
-		// edge is on the page with no push, then push the section down by the
-		// space left below it (never up). Redone when the window is resized.
-		// (The bowl <img> has width/height attributes, so its size is known even
-		// before the photo has downloaded.)
-		function fitToScreen() {
-			root.style.setProperty('--push', '0px');
-			const bowlBottom = bowlArea.getBoundingClientRect().bottom + window.scrollY;
-			const push = Math.max(0, window.innerHeight - bowlBottom);
-			root.style.setProperty('--push', `${push}px`);
-		}
-		fitToScreen();
-		window.addEventListener('resize', fitToScreen);
 	});
 </script>

@@ -7,6 +7,7 @@ import { Image } from 'astro:assets';
 import blessings from '../assets/images/about/mailchimp-blessings.png';
 import houseTulips from '../assets/images/about/house/house-tulips.jpg';
 import debPhoto from '../assets/images/about/aunt_deb_img.png';
+import tableDeb from '../assets/images/about/table-deb.jpg';
 import StoryMap from '../components/StoryMap.astro';
 ---
 
@@ -29,6 +30,14 @@ import StoryMap from '../components/StoryMap.astro';
 			widths={[480, 720, 960]}
 			sizes="(max-width: 520px) 100vw, 480px"
 			class="blessings"
+		/>
+
+		<!-- Deb's painted table, next to the blessings note -->
+		<Image
+			src={tableDeb}
+			alt="A painted room: a green table with a turquoise vase and a red flower, two polka-dot stools with “sit” on their seats, and a framed photo of Deb, smiling and leaning out of the frame, on a yellow-scribble wall above a purple floor"
+			width={500}
+			class="table-deb"
 		/>
 		</div>
 
@@ -129,12 +138,10 @@ import StoryMap from '../components/StoryMap.astro';
 	/* 3 + 6: text column on the left, image column on the right. */
 	.story {
 		display: grid;
-		/* One centered column: the story text is gone for now, so only the
-		   blessings note is here. (Add a minmax(0, 65ch) column back first if the
-		   text returns.) */
-		grid-template-columns: minmax(0, 480px);
+		/* Two centered columns: the blessings note and Deb's painted table. */
+		grid-template-columns: repeat(2, minmax(0, 480px));
 		justify-content: center; /* center the column on the page */
-		align-items: start; /* both columns start at the top */
+		align-items: center; /* the square table picture sits level with the middle of the tall note */
 		gap: 3rem;
 		margin: 0 auto 3rem;
 	}
@@ -147,6 +154,21 @@ import StoryMap from '../components/StoryMap.astro';
 		display: block;
 		width: 100%;
 		height: auto;
+	}
+
+	/* Deb's painted table: square picture with a bold black border and a soft shadow, rounded
+	   corners like the house photo. box-sizing: border-box keeps the border
+	   inside the column width instead of adding to it. */
+	.table-deb {
+		display: block;
+		width: 100%;
+		height: auto;
+		border: 6px solid #000;
+		/* A soft shadow just below the picture, so it lifts off the purple floor.
+		   (sideways 0, down 6px, blur 16px, black at 25% strength) */
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+		border-radius: 10px;
+		box-sizing: border-box;
 	}
 
 	/* 11. Deb's House card */
@@ -196,12 +218,13 @@ import StoryMap from '../components/StoryMap.astro';
 		}
 	}
 
-	/* Narrower screens: stack the story text and the blessings note. */
+	/* Narrower screens: stack the blessings note and the table picture. */
 	@media (max-width: 900px) {
 		.story {
 			grid-template-columns: minmax(0, 65ch);
 		}
-		.blessings {
+		.blessings,
+		.table-deb {
 			max-width: 480px;
 			margin: 0 auto;
 		}
