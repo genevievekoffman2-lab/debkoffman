@@ -1,12 +1,15 @@
 ---
 // StoryMap.astro
-// Deb's hand-drawn "Map of the Territory" with clickable, glowing arrows.
-// Clicking an arrow (or pressing "next →") shows that part of her story beside the map.
+// Deb's painted room: a yellow-scribble wall with her hand-drawn "Map of the
+// Territory" hanging on it in a polka-dot frame, and a purple floor below.
+// Clicking a glowing arrow (or pressing "next →") shows that part of her story
+// on the card beside the map; "read it all" opens her full story on the floor.
 //
-// Positions come from src/data/aboutMap.ts and are PERCENTAGES of the map image,
-// so the buttons and glows stay on the arrows at any screen width.
+// Positions come from src/data/aboutMap.ts and are PERCENTAGES of the map image
+// (map-territory-framed.jpg), so the buttons and glows stay on the arrows at any width.
 import { Image } from 'astro:assets';
-import mapImg from '../assets/images/about/map-territory-1200.jpg';
+import mapImg from '../assets/images/about/map-territory-framed.jpg';
+import frameImg from '../assets/images/about/frame-yellow-landscape.png';
 import { mapSpots, fullStory } from '../data/aboutMap';
 
 // "The Bold Part: I make art (stories, poems…"  → the button's accessible name
@@ -19,82 +22,163 @@ const startSpot = mapSpots.find((spot) => spot.id === 'start') ?? mapSpots[0];
 ---
 
 <section class="story-map" id="story-map" aria-label="Deb's Map of the Territory">
-	<div class="panel">
-		<p class="panel-text is-showing" aria-live="polite">{startSpot.text}</p>
-		<div class="panel-buttons">
-			<button type="button" class="panel-btn" data-action="next">next →</button>
-			<button
-				type="button"
-				class="panel-btn"
-				data-action="all"
-				aria-expanded="false"
-				aria-controls="full-story"
-			>read it all</button>
-		</div>
-	</div>
-	<div class="map">
-		<Image
-			src={mapImg}
-			alt="Deb's hand-drawn Map of the Territory, with red arrows pointing to its parts"
-			widths={[600, 900, 1200]}
-			sizes="(max-width: 900px) calc(100vw - 3rem), 800px"
-			class="map-img"
-		/>
-		
-
-		{
-			mapSpots.map((spot, i) => (
-				<>
+	<!-- THE WALL: scribbles, with the text panel and the framed map on it -->
+	<div class="wall">
+		<div class="wall-inner">
+			<div class="panel">
+				<!-- the cream card, so the text reads clearly over the scribbles -->
+				<div class="panel-card">
+					<p class="panel-text is-showing" aria-live="polite">{startSpot.text}</p>
+				</div>
+				<div class="panel-buttons">
+					<button type="button" class="panel-btn" data-action="next">next →</button>
 					<button
 						type="button"
-						class="spot"
-						data-index={i}
-						data-text={spot.text}
-						aria-label={`${spot.label}: ${firstWords(spot.text)}`}
-						aria-pressed={spot.id === startSpot.id ? 'true' : 'false'}
-						style={`left:${spot.box.left}%;top:${spot.box.top}%;width:${spot.box.width}%;height:${spot.box.height}%;`}
-					/>
-					<span
-						class="glow"
-						aria-hidden="true"
-						style={`left:${spot.glow.x}%;top:${spot.glow.y}%;`}
-					/>
-				</>
-			))
-		}
+						class="panel-btn"
+						data-action="all"
+						aria-expanded="false"
+						aria-controls="full-story"
+					>read it all</button>
+				</div>
+			</div>
+
+			<!-- The framed map. Three layers, stacked in this order (later = on top):
+			     1. the map photo, in the frame's window
+			     2. the polka-dot frame PNG (clicks pass through it)
+			     3. the arrow buttons and glows, so they stay clickable and visible -->
+			<div class="frame">
+				<Image
+					src={mapImg}
+					alt="Deb's hand-drawn Map of the Territory, with red arrows pointing to its parts"
+					widths={[550, 800, 1106]}
+					sizes="(max-width: 900px) 68vw, 540px"
+					class="map-img"
+				/>
+				<Image
+					src={frameImg}
+					alt=""
+					widths={[800, 1200, 1600]}
+					sizes="(max-width: 900px) 100vw, 800px"
+					class="frame-img"
+				/>
+				<div class="spots">
+					{
+						mapSpots.map((spot, i) => (
+							<>
+								<button
+									type="button"
+									class="spot"
+									data-index={i}
+									data-text={spot.text}
+									aria-label={`${spot.label}: ${firstWords(spot.text)}`}
+									aria-pressed={spot.id === startSpot.id ? 'true' : 'false'}
+									style={`left:${spot.box.left}%;top:${spot.box.top}%;width:${spot.box.width}%;height:${spot.box.height}%;`}
+								/>
+								<span
+									class="glow"
+									aria-hidden="true"
+									style={`left:${spot.glow.x}%;top:${spot.glow.y}%;`}
+								/>
+							</>
+						))
+					}
+				</div>
+			</div>
+		</div>
 	</div>
 
-	<!-- "read it all": Deb's full text below the map, hidden until that button is pressed -->
-	<div class="full-story" id="full-story" hidden>
-		<h2 tabindex="-1">About Deb</h2>
-		{fullStory.aboutDeb.map((para) => <p>{para}</p>)}
-		<h2>More About Deb</h2>
-		{fullStory.moreAboutDeb.map((para) => <p>{para}</p>)}
-		<a class="back-link" href="#story-map">↑ back to the map</a>
+	<!-- THE FLOOR: purple; "read it all" opens Deb's full story here, on a cream card -->
+	<div class="floor">
+		<div class="full-story" id="full-story" hidden>
+			<h2 tabindex="-1">About Deb</h2>
+			{fullStory.aboutDeb.map((para) => <p>{para}</p>)}
+			<h2>More About Deb</h2>
+			{fullStory.moreAboutDeb.map((para) => <p>{para}</p>)}
+			<a class="back-link" href="#story-map">↑ back to the map</a>
+		</div>
 	</div>
-
-	 
 </section>
 
 <style>
-	/* Side by side on desktop: text panel (1 part) | map (2 parts). */
+	/* Room colors, in one place so they're easy to change. */
 	.story-map {
+		--wall: #fefdfd;
+		--floor: #8b08a2;
+		--card: #fef8e7;
+		--card-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+
+		/* Full bleed: stretch to the full screen width even though the page content
+		   sits in a narrower centered column (same trick as PhotoGrid). */
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
+		margin-bottom: 3rem;
+	}
+
+	/* ---------- THE WALL ---------- */
+	/* White, with Deb's yellow scribbles (transparent PNG) on top of it. */
+	.wall {
+		background: var(--wall) url('/images/about/yellow-scribbles.png') center / cover no-repeat;
+		padding: 3rem 1.5rem;
+	}
+	/* Side by side on desktop: text panel (1 part) | framed map (2 parts). */
+	.wall-inner {
 		display: grid;
 		grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr);
 		gap: 2.5rem;
-		align-items: center; /* panel sits level with the middle of the map */
+		align-items: center; /* panel sits level with the middle of the frame */
 		max-width: 1200px;
-		margin: 0 auto 3rem;
+		margin: 0 auto;
 	}
 
-	/* The map: the image sets the size; buttons and glows are placed on top of it. */
-	.map {
-		position: relative; /* the % positions below are measured from this box */
+	/* ---------- THE FLOOR ---------- */
+	/* Solid purple. Its minimum height makes it roughly the bottom 30% of the room
+	   when the full story is closed; opening the story makes it taller. */
+	.floor {
+		background: var(--floor);
+		min-height: clamp(6rem, 20vw, 16rem);
+		padding: 2.5rem 1.5rem;
 	}
+
+	/* ---------- THE FRAMED MAP ---------- */
+	/* The frame PNG (2732×2048) sets the box's shape. Everything inside is placed
+	   with percentages of this box. drop-shadow follows the frame's outline (not a
+	   rectangle), so it looks like it's hanging on the wall. */
+	.frame {
+		position: relative; /* the layers below are measured from this box */
+		aspect-ratio: 2732 / 2048;
+		filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.3));
+	}
+
+	/* Layers 1 and 3 (the map, and the spots layer) share the same box: the frame's
+	   window (left 16.4%, top 19.1%, width 66.8%, height 58.4%), grown by 0.5% on
+	   each side so the map's edges tuck under the frame and no gap shows.
+	   Because the spots layer is exactly the map's box, the percentages in
+	   aboutMap.ts (measured on the map image) still land on the arrows. */
+	.map-img,
+	.spots {
+		position: absolute;
+		left: 15.9%;
+		top: 18.6%;
+		width: 67.8%;
+		height: 59.4%;
+	}
+	/* Layer 1: the map. */
 	.map-img {
 		display: block;
+		object-fit: cover; /* fills the box (same shape as the image, so nothing is cut) */
+	}
+	/* Layer 2: the frame, covering the whole box. */
+	.frame-img {
+		position: absolute;
+		inset: 0;
 		width: 100%;
-		height: auto;
+		height: 100%;
+		pointer-events: none; /* clicks pass through it */
+	}
+	/* Layer 3: the spots. It comes after the frame in the HTML, so it's drawn on top.
+	   The layer itself lets clicks through; only the buttons inside catch them. */
+	.spots {
+		pointer-events: none;
 	}
 
 	/* Clickable areas: invisible, covering each arrow and its label. */
@@ -105,6 +189,7 @@ const startSpot = mapSpots.find((spot) => spot.id === 'start') ?? mapSpots[0];
 		background: transparent;
 		cursor: pointer;
 		border-radius: 6px;
+		pointer-events: auto; /* catch clicks (the layer around them doesn't) */
 		z-index: 2; /* above the glows */
 	}
 	.spot:focus-visible {
@@ -148,22 +233,68 @@ const startSpot = mapSpots.find((spot) => spot.id === 'start') ?? mapSpots[0];
 		scale: 1.25;
 	}
 
-	/* The text panel beside the map. */
+	/* ---------- THE TEXT PANEL ---------- */
 	.panel {
 		text-align: left;
+	}
+	/* The cream card behind the text, so it reads clearly over the scribbles. */
+	.panel-card {
+		background: var(--card);
+		border-radius: 16px;
+		box-shadow: var(--card-shadow);
+		padding: 1.5rem 1.75rem;
+		margin-bottom: 1.25rem;
 	}
 	.panel-text {
 		font-size: 1.75rem;
 		line-height: 1.4;
-		margin: 0 0 1.25rem;
+		margin: 0;
 		opacity: 0;
 	}
-	/* "read it all": the full story, below the map and panel, at normal reading size. */
+	.panel-text.is-showing {
+		animation: text-fade-in 0.5s ease forwards;
+	}
+	@keyframes text-fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	.panel-buttons {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+	.panel-btn {
+		font: inherit;
+		font-size: 1.125rem;
+		padding: 0.5rem 1.25rem;
+		border: 2px solid var(--ink);
+		border-radius: 999px;
+		background: var(--card); /* solid, so the label isn't lost in the scribbles */
+		color: var(--ink);
+		cursor: pointer;
+	}
+	.panel-btn:hover {
+		background: var(--pink);
+	}
+	.panel-btn:focus-visible {
+		outline: 3px solid var(--ink);
+		outline-offset: 3px;
+	}
+
+	/* ---------- THE FULL STORY (on the floor) ---------- */
+	/* "read it all": Deb's full text on a cream card, at normal reading size. */
 	.full-story {
-		grid-column: 1 / -1; /* span both grid columns, so it sits under the panel AND the map */
-		width: 100%;
 		max-width: 65ch; /* about 65 characters per line */
-		margin: 1.5rem auto 0;
+		margin: 0 auto;
+		padding: 2rem 2.25rem;
+		background: var(--card);
+		border-radius: 16px;
+		box-shadow: var(--card-shadow);
 		font-size: 1.125rem;
 		line-height: 1.7;
 		scroll-margin-top: 1.5rem; /* leave a little space above it when scrolled into view */
@@ -193,46 +324,19 @@ const startSpot = mapSpots.find((spot) => spot.id === 'start') ?? mapSpots[0];
 		outline: 3px solid var(--ink);
 		outline-offset: 3px;
 	}
-	.panel-text.is-showing {
-		animation: text-fade-in 0.5s ease forwards;
-	}
-	@keyframes text-fade-in {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
 
-	.panel-buttons {
-		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
-	.panel-btn {
-		font: inherit;
-		font-size: 1.125rem;
-		padding: 0.5rem 1.25rem;
-		border: 2px solid var(--ink);
-		border-radius: 999px;
-		background: transparent;
-		color: var(--ink);
-		cursor: pointer;
-	}
-	.panel-btn:hover {
-		background: var(--pink);
-	}
-	.panel-btn:focus-visible {
-		outline: 3px solid var(--ink);
-		outline-offset: 3px;
-	}
-
-	/* Tablets and phones: stack the panel and map, centered. */
+	/* ---------- SMALLER SCREENS ---------- */
+	/* Tablets and phones: stack the framed map, then the text card, then the buttons. */
 	@media (max-width: 900px) {
-		.story-map {
+		.wall {
+			padding: 2rem 1rem;
+		}
+		.wall-inner {
 			grid-template-columns: minmax(0, 1fr);
 			gap: 1.5rem;
+		}
+		.frame {
+			order: -1; /* framed map first, above the panel */
 		}
 		.panel {
 			max-width: 40ch;
@@ -242,11 +346,20 @@ const startSpot = mapSpots.find((spot) => spot.id === 'start') ?? mapSpots[0];
 		.panel-buttons {
 			justify-content: center;
 		}
+		.floor {
+			padding: 1.5rem 1rem;
+		}
+		.full-story {
+			padding: 1.5rem 1.25rem;
+		}
 	}
 
 	@media (max-width: 700px) {
 		.panel-text {
 			font-size: 1.25rem;
+		}
+		.panel-card {
+			padding: 1.25rem;
 		}
 	}
 

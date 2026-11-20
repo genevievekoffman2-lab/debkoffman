@@ -51,6 +51,12 @@ import StoryMap from '../components/StoryMap.astro';
 	.about {
 		padding-bottom: 3rem;
 	}
+	/* Deb's painted room (StoryMap) starts right under the header: pull it up by
+	   <main>'s 1.5rem top padding. :global() lets this page's CSS reach a class
+	   that lives inside the StoryMap component. */
+	.about > :global(.story-map) {
+		margin-top: -1.5rem;
+	}
 	.page-title {
 		text-align: center;
 		margin: 1rem 0 2rem;

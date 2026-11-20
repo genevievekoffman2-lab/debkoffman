@@ -19,6 +19,8 @@ import sittingBuddhasCardImg from '../assets/images/series/sitting-buddhas/all.j
 import oneWayCoverImg from '../assets/images/series/one-way-or-another/one-way-cover.jpg';
 import oneWayDebbieImg from '../assets/images/series/one-way-or-another/one-way-deb.jpg';
 import noOneWayImg from '../assets/images/series/one-way-or-another/no-one-way.jpg';
+import wheelCoverImg from '../assets/images/series/wheel/wheel-blue.jpg';
+import yellowWheelImg from '../assets/images/series/wheel/wheel-yellow.jpg';
 
 /** One photo in a series' photo grid (PhotoGrid). */
 export interface GalleryPhoto {
@@ -67,7 +69,18 @@ export const series: Series[] = [
 	{
 		slug: 'wheel',
 		title: 'Wheel',
-		description: '[Placeholder description of the Wheel series.]',
+		description: 'I always have a choice.',
+		image: wheelCoverImg,
+		photos: [
+			{
+				src: yellowWheelImg,
+				alt: 'yellow wheel',
+			},
+			{
+				src: wheelCoverImg,
+				alt: 'blue wheel',
+			},
+		]
 	},
 	{
 		slug: 'sitting-buddhas',

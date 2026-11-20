@@ -769,3 +769,22 @@ A running log of what was built and why. Newest at the bottom.
 
 ## Step 59: Card photo for Sitting Buddhas
 - **Changed:** `src/data/series.ts`: imported `src/assets/images/series/sitting-buddhas/all.jpg` as `sittingBuddhasCardImg` and set it as the Sitting Buddhas entry's `image` (with `imageAlt`), so its card on `/art/series` shows a photo. Chosen because it shows one buddha holding several feeling signs at once (Anger, Love, Comfort), which sums up the series.
+
+## Step 60: Card photo for Wheel
+- **Changed:** `src/data/series.ts`: imported `src/assets/images/series/wheel/wheel-blue.jpg` as `wheelCoverImg` and set it as the Wheel entry's `image`, so its card on `/art/series` shows a photo instead of a blank square. It's imported from `src/assets/` (not `/images/...` in `public/`) so Astro optimizes it, like the other series covers.
+
+## Step 61: About Deb as Deb's painted room
+- **Changed:** `src/components/StoryMap.astro` (rewritten markup + CSS; the `<script>` is unchanged) and `src/pages/about.astro` (one rule).
+- **New images:** `public/images/about/yellow-scribbles.png` (wall pattern, used as-is as a CSS background), `src/assets/images/about/frame-yellow-landscape.png` (polka-dot frame), `src/assets/images/about/map-territory-framed.jpg` (map cropped to the frame window's shape, 1106×726). `src/data/aboutMap.ts` percentages are now measured on the framed map.
+- **The room** (`<section class="story-map">`), full bleed (`width: 100vw; margin-left: calc(50% - 50vw)`, same trick as PhotoGrid), pulled up under the header in `about.astro` with `margin-top: -1.5rem` (cancels `<main>`'s top padding). **`:global()`** lets about.astro's scoped CSS reach a class inside the StoryMap component.
+  - `.wall`: white `#FEFDFD` + scribbles (`background-size: cover`). Holds the text panel and the framed map.
+  - `.floor`: purple `#8B08A2`, `min-height: clamp(6rem, 20vw, 16rem)` (≈ bottom 30% while the story is closed). "read it all" opens here, on a cream card. Wall and floor are separate boxes so opening the story grows the floor, not the wall.
+  - Colors live as custom properties on `.story-map`: `--wall`, `--floor`, `--card` (`#FEF8E7`), `--card-shadow`.
+- **The framed map** (`.frame`, shaped like the frame PNG: `aspect-ratio: 2732 / 2048`), three layers in HTML order (later = drawn on top):
+  1. `.map-img`: the map, in the frame's window (left 16.4%, top 19.1%, width 66.8%, height 58.4%) grown 0.5% per side → left 15.9%, top 18.6%, width 67.8%, height 59.4%.
+  2. `.frame-img`: the frame PNG over everything, `pointer-events: none` (clicks pass through it).
+  3. `.spots`: the arrow buttons + glows, in a layer with **exactly the same box as the map**, so the aboutMap.ts percentages still land on the arrows. The layer has `pointer-events: none`; the buttons inside turn it back on (`pointer-events: auto`).
+  - Hanging shadow: `filter: drop-shadow(...)` on `.frame`. Unlike `box-shadow`, **drop-shadow** follows the image's visible outline, not its rectangle.
+  - The glows' `mix-blend-mode: multiply` still works: the filter makes `.frame` its own "group", and the glows blend with the map and frame inside it.
+- **The text panel:** text on a cream card (rounded, soft shadow); buttons below on the wall, now with a solid cream background so their labels don't get lost in the scribbles.
+- **≤ 900px:** one column, framed map first (`order: -1`), then card, then buttons; wall and floor still behind.
